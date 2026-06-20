@@ -96,10 +96,10 @@ export async function cancelTaskReminders(
   supabase: Supabase,
   taskId: string
 ): Promise<void> {
-  // Mark notifications as cancelled in DB
+  // Mark notifications as sent in DB to prevent them from being triggered
   await supabase
     .from("notifications")
-    .update({ sent: true, cancelled: true })
+    .update({ sent: true })
     .eq("task_id", taskId)
     .eq("sent", false);
 
