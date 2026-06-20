@@ -6,11 +6,5 @@
     "src/app/api/ai/**/route.ts": {
       "maxDuration": 300
     }
-  },
-  "crons": [
-    {
-      "path": "/api/cron/reminders",
-      "schedule": "* * * * *"
-    }
-  ]
+  }
 }
