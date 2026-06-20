@@ -1,0 +1,58 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - img [ref=e7]
+          - generic [ref=e11]: MedMate AI
+        - navigation [ref=e12]:
+          - button "Toggle theme" [ref=e13]:
+            - img
+          - button "Sign in" [ref=e14] [cursor=pointer]
+          - button "Get started" [ref=e15] [cursor=pointer]
+    - main [ref=e16]:
+      - generic [ref=e18]:
+        - generic [ref=e19]:
+          - img [ref=e20]
+          - text: Your personal AI study coach
+        - heading "Study medicine smarter, not longer." [level=1] [ref=e23]
+        - paragraph [ref=e24]: MedMate AI organizes your tasks, turns notes into quizzes and summaries, builds your exam plan and tracks your weak subjects — all in one focused workspace.
+        - generic [ref=e25]:
+          - button "Start studying free" [ref=e26] [cursor=pointer]:
+            - text: Start studying free
+            - img
+          - button "I already have an account" [ref=e27] [cursor=pointer]
+      - generic [ref=e29]:
+        - generic [ref=e30]:
+          - img [ref=e32]
+          - heading "Smart task management" [level=3] [ref=e35]
+          - paragraph [ref=e36]: Plan study tasks with priorities, due dates and recurring revisions across Today, Upcoming and Calendar views.
+        - generic [ref=e37]:
+          - img [ref=e39]
+          - heading "Timely reminders" [level=3] [ref=e42]
+          - paragraph [ref=e43]: Browser notifications 15/30/60 minutes before a task — so Pathology revision never slips.
+        - generic [ref=e44]:
+          - img [ref=e46]
+          - heading "AI quizzes & summaries" [level=3] [ref=e54]
+          - paragraph [ref=e55]: Turn any notes into board-style MCQs, true/false and short answers, or instant revision sheets.
+        - generic [ref=e56]:
+          - img [ref=e58]
+          - heading "Exam study planner" [level=3] [ref=e60]
+          - paragraph [ref=e61]: Generate a day-by-day plan from your exam date with interleaving, revision blocks and catch-up days.
+        - generic [ref=e62]:
+          - img [ref=e64]
+          - heading "Spaced repetition" [level=3] [ref=e67]
+          - paragraph [ref=e68]: Rate each revision Easy/Medium/Hard and let the SM-2 scheduler decide what to review next.
+        - generic [ref=e69]:
+          - img [ref=e71]
+          - heading "Performance analytics" [level=3] [ref=e74]
+          - paragraph [ref=e75]: Track quiz accuracy, study hours and weak subjects with clean charts and weekly progress.
+    - contentinfo [ref=e76]:
+      - generic [ref=e77]:
+        - generic [ref=e78]:
+          - img [ref=e80]
+          - generic [ref=e84]: MedMate AI
+        - paragraph [ref=e85]: © 2026 MedMate AI. Built for medical students.
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e91] [cursor=pointer]:
+    - img [ref=e92]

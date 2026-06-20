@@ -1,0 +1,12 @@
+{
+  "name": "MedMate AI",
+  "short_name": "MedMate",
+  "description": "AI-powered study coach for medical students.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#0e1620",
+  "theme_color": "#0e1620",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

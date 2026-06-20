@@ -1,0 +1,718 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+@custom-variant hello-kitty (&:is(.hello-kitty *));
+@custom-variant batman (&:is(.batman *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* MedMate medical theme — calm teal/emerald primary with a clinical, clean palette */
+:root {
+  --background: oklch(0.99 0.004 196);
+  --foreground: oklch(0.21 0.02 220);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.21 0.02 220);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.21 0.02 220);
+  --primary: oklch(0.58 0.1 190);
+  --primary-foreground: oklch(0.99 0.01 196);
+  --secondary: oklch(0.96 0.012 196);
+  --secondary-foreground: oklch(0.3 0.03 210);
+  --muted: oklch(0.965 0.008 200);
+  --muted-foreground: oklch(0.53 0.02 215);
+  --accent: oklch(0.94 0.03 188);
+  --accent-foreground: oklch(0.32 0.05 200);
+  --destructive: oklch(0.58 0.22 25);
+  --success: oklch(0.62 0.14 155);
+  --success-foreground: oklch(0.99 0.01 155);
+  --warning: oklch(0.75 0.15 75);
+  --warning-foreground: oklch(0.28 0.06 75);
+  --border: oklch(0.91 0.01 200);
+  --input: oklch(0.91 0.01 200);
+  --ring: oklch(0.58 0.1 190);
+  --chart-1: oklch(0.62 0.13 190);
+  --chart-2: oklch(0.6 0.14 250);
+  --chart-3: oklch(0.68 0.15 155);
+  --chart-4: oklch(0.76 0.15 75);
+  --chart-5: oklch(0.62 0.2 18);
+  --radius: 0.7rem;
+  --sidebar: oklch(0.985 0.006 200);
+  --sidebar-foreground: oklch(0.25 0.02 220);
+  --sidebar-primary: oklch(0.58 0.1 190);
+  --sidebar-primary-foreground: oklch(0.99 0.01 196);
+  --sidebar-accent: oklch(0.94 0.03 188);
+  --sidebar-accent-foreground: oklch(0.32 0.05 200);
+  --sidebar-border: oklch(0.91 0.01 200);
+  --sidebar-ring: oklch(0.58 0.1 190);
+}
+
+.dark {
+  --background: oklch(0.17 0.02 230);
+  --foreground: oklch(0.96 0.006 200);
+  --card: oklch(0.21 0.022 232);
+  --card-foreground: oklch(0.96 0.006 200);
+  --popover: oklch(0.21 0.022 232);
+  --popover-foreground: oklch(0.96 0.006 200);
+  --primary: oklch(0.72 0.12 188);
+  --primary-foreground: oklch(0.18 0.03 220);
+  --secondary: oklch(0.27 0.02 232);
+  --secondary-foreground: oklch(0.96 0.006 200);
+  --muted: oklch(0.27 0.02 232);
+  --muted-foreground: oklch(0.7 0.02 210);
+  --accent: oklch(0.3 0.04 200);
+  --accent-foreground: oklch(0.95 0.02 195);
+  --destructive: oklch(0.68 0.19 22);
+  --success: oklch(0.7 0.14 158);
+  --success-foreground: oklch(0.18 0.03 158);
+  --warning: oklch(0.8 0.14 78);
+  --warning-foreground: oklch(0.22 0.04 78);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.72 0.12 188);
+  --chart-1: oklch(0.72 0.13 188);
+  --chart-2: oklch(0.68 0.14 250);
+  --chart-3: oklch(0.74 0.15 155);
+  --chart-4: oklch(0.8 0.15 78);
+  --chart-5: oklch(0.7 0.19 18);
+  --sidebar: oklch(0.2 0.022 232);
+  --sidebar-foreground: oklch(0.95 0.006 200);
+  --sidebar-primary: oklch(0.72 0.12 188);
+  --sidebar-primary-foreground: oklch(0.18 0.03 220);
+  --sidebar-accent: oklch(0.3 0.04 200);
+  --sidebar-accent-foreground: oklch(0.95 0.02 195);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.72 0.12 188);
+}
+
+/* ─── Hello Kitty Theme ──────────────────────────────────────────────────── */
+.hello-kitty {
+  --background: oklch(0.99 0.01 0);
+  --foreground: oklch(0.22 0.03 350);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.22 0.03 350);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.22 0.03 350);
+  --primary: oklch(0.68 0.22 0);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.95 0.05 350);
+  --secondary-foreground: oklch(0.35 0.06 350);
+  --muted: oklch(0.96 0.03 0);
+  --muted-foreground: oklch(0.55 0.05 350);
+  --accent: oklch(0.93 0.06 300);
+  --accent-foreground: oklch(0.35 0.07 300);
+  --destructive: oklch(0.58 0.22 25);
+  --success: oklch(0.62 0.14 155);
+  --success-foreground: oklch(0.99 0.01 155);
+  --warning: oklch(0.75 0.15 75);
+  --warning-foreground: oklch(0.28 0.06 75);
+  --border: oklch(0.87 0.08 0);
+  --input: oklch(0.87 0.08 0);
+  --ring: oklch(0.68 0.22 0);
+  --chart-1: oklch(0.68 0.22 0);
+  --chart-2: oklch(0.75 0.14 300);
+  --chart-3: oklch(0.78 0.12 60);
+  --chart-4: oklch(0.72 0.15 160);
+  --chart-5: oklch(0.65 0.18 330);
+  --radius: 1.1rem;
+  --sidebar: oklch(0.97 0.04 350);
+  --sidebar-foreground: oklch(0.25 0.04 350);
+  --sidebar-primary: oklch(0.68 0.22 0);
+  --sidebar-primary-foreground: oklch(1 0 0);
+  --sidebar-accent: oklch(0.92 0.06 350);
+  --sidebar-accent-foreground: oklch(0.35 0.06 350);
+  --sidebar-border: oklch(0.87 0.08 0);
+  --sidebar-ring: oklch(0.68 0.22 0);
+  font-family: var(--font-nunito), var(--font-sans), sans-serif;
+}
+
+/* HK-specific component overrides */
+.hello-kitty [data-slot="button"][class*="bg-primary"] {
+  background-image: linear-gradient(135deg, oklch(0.68 0.22 0), oklch(0.72 0.18 330));
+  border-radius: 9999px;
+}
+
+.hello-kitty [data-slot="card"] {
+  border-color: oklch(0.87 0.08 0);
+  box-shadow: 0 2px 8px oklch(0.68 0.22 0 / 8%);
+}
+
+/* ═══ Hello Kitty — immersive experience (scoped to .hello-kitty only) ════════ */
+
+/* hide elements that have a Hello Kitty replacement (e.g. lucide empty-state icon) */
+.hello-kitty [data-hk-hide] {
+  display: none;
+}
+
+/* ── Display font for headers / banners / greeting ──────────────────────────── */
+.hello-kitty h1,
+.hello-kitty .hk-display {
+  font-family: var(--font-display), var(--font-nunito), sans-serif;
+  letter-spacing: 0.01em;
+}
+
+/* ── Custom cursors (small inline-SVG data-URIs; always keep a real fallback) ── */
+/* paw (default) */
+.hello-kitty,
+.hello-kitty * {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 24 24'%3E%3Cg fill='%23e6398a'%3E%3Cellipse cx='12' cy='16' rx='6' ry='5'/%3E%3Cellipse cx='5.5' cy='10' rx='2.4' ry='3'/%3E%3Cellipse cx='10' cy='6.5' rx='2.4' ry='3'/%3E%3Cellipse cx='14' cy='6.5' rx='2.4' ry='3'/%3E%3Cellipse cx='18.5' cy='10' rx='2.4' ry='3'/%3E%3C/g%3E%3C/svg%3E")
+      6 6,
+    auto;
+}
+/* bow (interactive elements) */
+.hello-kitty a,
+.hello-kitty button,
+.hello-kitty [role="button"],
+.hello-kitty [data-slot="button"],
+.hello-kitty summary,
+.hello-kitty label[for] {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='20' viewBox='0 0 32 18'%3E%3Cg fill='%23e6398a'%3E%3Cellipse cx='9' cy='9' rx='8.5' ry='7'/%3E%3Cellipse cx='23' cy='9' rx='8.5' ry='7'/%3E%3Ccircle cx='16' cy='9' r='3.6'/%3E%3C/g%3E%3C/svg%3E")
+      15 9,
+    pointer;
+}
+/* heart (cards & opt-in clickable surfaces) */
+.hello-kitty [data-slot="card"],
+.hello-kitty [data-hk-clickable] {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='24' viewBox='0 0 20 18'%3E%3Cpath fill='%23e6398a' d='M10 17S1 11 1 5.5A4.5 4.5 0 0 1 10 3.28 4.5 4.5 0 0 1 19 5.5C19 11 10 17 10 17z'/%3E%3C/svg%3E")
+      13 9,
+    auto;
+}
+/* text inputs keep a usable I-beam */
+.hello-kitty input,
+.hello-kitty textarea,
+.hello-kitty [contenteditable="true"] {
+  cursor: text;
+}
+/* touch devices: custom cursors are pointless and can cause artifacts */
+@media (pointer: coarse) {
+  .hello-kitty,
+  .hello-kitty * {
+    cursor: auto;
+  }
+  .hello-kitty a,
+  .hello-kitty button,
+  .hello-kitty [role="button"],
+  .hello-kitty [data-slot="button"] {
+    cursor: pointer;
+  }
+}
+
+/* ── Sidebar active item: ribbon bar + soft glow + animated paw ─────────────── */
+.hello-kitty [data-slot="sidebar-link"] {
+  position: relative;
+}
+.hello-kitty [data-slot="sidebar-link"][data-active="true"] {
+  box-shadow: 0 0 0 1px oklch(0.68 0.22 0 / 12%), 0 4px 14px oklch(0.68 0.22 0 / 18%);
+}
+/* ribbon highlight bar on the left edge */
+.hello-kitty [data-slot="sidebar-link"][data-active="true"]::before {
+  content: "";
+  position: absolute;
+  left: -2px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 60%;
+  border-radius: 9999px;
+  background: linear-gradient(180deg, oklch(0.68 0.22 0), oklch(0.72 0.18 330));
+}
+/* animated paw indicator on the right */
+.hello-kitty [data-slot="sidebar-link"][data-active="true"]::after {
+  content: "";
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  width: 12px;
+  height: 11px;
+  transform: translateY(-50%);
+  background-color: currentColor;
+  opacity: 0.8;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg fill='black'%3E%3Cellipse cx='12' cy='16' rx='6' ry='5'/%3E%3Cellipse cx='5.5' cy='10' rx='2.4' ry='3'/%3E%3Cellipse cx='10' cy='6.5' rx='2.4' ry='3'/%3E%3Cellipse cx='14' cy='6.5' rx='2.4' ry='3'/%3E%3Cellipse cx='18.5' cy='10' rx='2.4' ry='3'/%3E%3C/g%3E%3C/svg%3E")
+    center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg fill='black'%3E%3Cellipse cx='12' cy='16' rx='6' ry='5'/%3E%3Cellipse cx='5.5' cy='10' rx='2.4' ry='3'/%3E%3Cellipse cx='10' cy='6.5' rx='2.4' ry='3'/%3E%3Cellipse cx='14' cy='6.5' rx='2.4' ry='3'/%3E%3Cellipse cx='18.5' cy='10' rx='2.4' ry='3'/%3E%3C/g%3E%3C/svg%3E")
+    center / contain no-repeat;
+  animation: hk-paw-wiggle 1.4s ease-in-out infinite;
+}
+
+/* ── Dividers: heart accent in the middle of horizontal rules ───────────────── */
+.hello-kitty hr,
+.hello-kitty [data-hk-divider] {
+  border: 0;
+  height: 14px;
+  background: center / 18px no-repeat
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='18' viewBox='0 0 20 18'%3E%3Cpath fill='%23e6398a' fill-opacity='0.6' d='M10 17S1 11 1 5.5A4.5 4.5 0 0 1 10 3.28 4.5 4.5 0 0 1 19 5.5C19 11 10 17 10 17z'/%3E%3C/svg%3E");
+  position: relative;
+}
+.hello-kitty hr::before,
+.hello-kitty [data-hk-divider]::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: oklch(0.68 0.22 0 / 18%);
+  z-index: -1;
+}
+
+/* ── Cards: corner ribbon accent ────────────────────────────────────────────── */
+.hello-kitty [data-slot="card"] {
+  position: relative;
+  overflow: hidden;
+}
+.hello-kitty [data-slot="card"]::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 18px;
+  height: 12px;
+  opacity: 0.45;
+  pointer-events: none;
+  background: center / contain no-repeat
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='18' viewBox='0 0 32 18'%3E%3Cg fill='%23e6398a'%3E%3Cellipse cx='9' cy='9' rx='8.5' ry='7'/%3E%3Cellipse cx='23' cy='9' rx='8.5' ry='7'/%3E%3Ccircle cx='16' cy='9' r='3.6'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ── Buttons: gentle hover bounce + tiny pop ────────────────────────────────── */
+.hello-kitty [data-slot="button"] {
+  transition: transform 0.15s ease;
+}
+.hello-kitty [data-slot="button"]:hover {
+  transform: translateY(-1px) scale(1.02);
+}
+.hello-kitty [data-slot="button"]:active {
+  transform: translateY(0) scale(0.99);
+}
+
+/* ── Page corner decorations (opt-in via data-hk-corner) ────────────────────── */
+.hello-kitty [data-hk-corner] {
+  position: relative;
+}
+.hello-kitty [data-hk-corner]::after {
+  content: "";
+  position: absolute;
+  top: -6px;
+  right: -2px;
+  width: 22px;
+  height: 14px;
+  opacity: 0.5;
+  pointer-events: none;
+  background: center / contain no-repeat
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='18' viewBox='0 0 32 18'%3E%3Cg fill='%23e6398a'%3E%3Cellipse cx='9' cy='9' rx='8.5' ry='7'/%3E%3Cellipse cx='23' cy='9' rx='8.5' ry='7'/%3E%3Ccircle cx='16' cy='9' r='3.6'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* ── Animations ─────────────────────────────────────────────────────────────── */
+@keyframes hk-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(6deg); }
+}
+@keyframes hk-float-slow {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-12px) rotate(-6deg); }
+}
+@keyframes hk-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes hk-paw-wiggle {
+  0%, 100% { transform: translateY(-50%) rotate(-8deg); opacity: 0.6; }
+  50% { transform: translateY(-60%) rotate(8deg); opacity: 1; }
+}
+@keyframes hk-sparkle {
+  0% { transform: scale(0.4) rotate(0deg); opacity: 0; }
+  40% { transform: scale(1.15) rotate(20deg); opacity: 1; }
+  100% { transform: scale(0.6) rotate(40deg); opacity: 0; }
+}
+@keyframes hk-greeting-pop {
+  0% { transform: scale(0.7); opacity: 0; }
+  55% { transform: scale(1.06); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes hk-greeting-fade {
+  0% { opacity: 0; }
+  30% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.hk-float { animation: hk-float 4s ease-in-out infinite; }
+.hk-float-slow { animation: hk-float-slow 6s ease-in-out infinite; }
+.hk-bounce { animation: hk-bounce 1.6s ease-in-out infinite; }
+.hk-sparkle { animation: hk-sparkle 1.6s ease-out forwards; }
+.hk-greeting-pop { animation: hk-greeting-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.hk-greeting-fade { animation: hk-greeting-fade 1.8s ease-in-out forwards; }
+
+/* ── Accessibility: respect reduced motion ──────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .hk-float,
+  .hk-float-slow,
+  .hk-bounce,
+  .hk-sparkle,
+  .hk-greeting-pop,
+  .hk-greeting-fade,
+  .hello-kitty [data-slot="sidebar-link"][data-active="true"]::after,
+  .hello-kitty [data-slot="button"]:hover {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+/* ─── Batman / Batcomputer Theme ─────────────────────────────────────────────
+   Matte-black / graphite base, electric-cyan primary HUD accent, Batman-yellow
+   "signal" highlight. Purely additive: scoped entirely under `.batman`. */
+.batman {
+  --background: oklch(0.16 0.012 250);
+  --foreground: oklch(0.94 0.01 220);
+  --card: oklch(0.2 0.014 250);
+  --card-foreground: oklch(0.94 0.01 220);
+  --popover: oklch(0.19 0.014 250);
+  --popover-foreground: oklch(0.94 0.01 220);
+  --primary: oklch(0.78 0.13 215);
+  --primary-foreground: oklch(0.15 0.03 235);
+  --secondary: oklch(0.26 0.015 250);
+  --secondary-foreground: oklch(0.92 0.012 215);
+  --muted: oklch(0.24 0.012 250);
+  --muted-foreground: oklch(0.72 0.022 220);
+  --accent: oklch(0.3 0.045 220);
+  --accent-foreground: oklch(0.9 0.04 210);
+  --destructive: oklch(0.62 0.21 25);
+  --success: oklch(0.72 0.15 158);
+  --success-foreground: oklch(0.15 0.03 158);
+  --warning: oklch(0.84 0.15 92);
+  --warning-foreground: oklch(0.24 0.05 92);
+  --border: oklch(0.85 0.06 215 / 12%);
+  --input: oklch(0.85 0.06 215 / 16%);
+  --ring: oklch(0.78 0.13 215);
+  --chart-1: oklch(0.78 0.13 215);
+  --chart-2: oklch(0.66 0.15 250);
+  --chart-3: oklch(0.74 0.13 190);
+  --chart-4: oklch(0.84 0.15 92);
+  --chart-5: oklch(0.72 0.16 60);
+  --radius: 0.35rem;
+  --sidebar: oklch(0.18 0.014 250);
+  --sidebar-foreground: oklch(0.9 0.012 220);
+  --sidebar-primary: oklch(0.78 0.13 215);
+  --sidebar-primary-foreground: oklch(0.15 0.03 235);
+  --sidebar-accent: oklch(0.3 0.045 220);
+  --sidebar-accent-foreground: oklch(0.9 0.04 210);
+  --sidebar-border: oklch(0.85 0.06 215 / 12%);
+  --sidebar-ring: oklch(0.78 0.13 215);
+  /* Batman-yellow signal accent, used by decorations / HUD highlights. */
+  --bat-signal: oklch(0.84 0.16 92);
+}
+
+/* ── Typography: Orbitron for page titles, Rajdhani for HUD labels ──────────── */
+.batman h1,
+.batman .bat-display {
+  font-family: var(--font-orbitron), var(--font-sans), sans-serif;
+  letter-spacing: 0.02em;
+}
+.batman .bat-hud {
+  font-family: var(--font-rajdhani), var(--font-sans), sans-serif;
+}
+
+/* hide elements that have a Batman replacement (e.g. lucide empty-state icon) */
+.batman [data-bat-hide] {
+  display: none;
+}
+
+/* ── Custom cursors (inline-SVG data-URIs; always keep a real fallback) ─────── */
+/* bat glyph (default) */
+.batman,
+.batman * {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='16' viewBox='0 0 32 18'%3E%3Cpath fill='%2322d3ee' d='M16 3c.8-1.2 1.6-1.6 1.8-.4.2 1 1 1.3 1.8.9 1.6-.8 3-.4 3.6 1 .3-.8 1.2-1 1.6-.2.7-1.2 1.9-.4 1.6 1-2 .2-3.2 1.5-3.8 3.2-.8 2-3 3.2-5 2.5C17 11.5 16.4 11 16 10.3c-.4.7-1 1.2-2.6 1.6-2 .7-4.2-.5-5-2.5C7.8 7.7 6.6 6.4 4.6 6.2 4.3 5.4 5.5 4.6 6.2 5.8c.4-.8 1.3-.6 1.6.2.6-1.4 2-1.8 3.6-1 .8.4 1.6.1 1.8-.9C13.4 1.4 15.2 1.8 16 3z'/%3E%3C/svg%3E")
+      14 8,
+    auto;
+}
+/* targeting reticle (interactive elements) */
+.batman a,
+.batman button,
+.batman [role="button"],
+.batman [data-slot="button"],
+.batman summary,
+.batman label[for] {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='26' height='26' viewBox='0 0 24 24'%3E%3Cg fill='none' stroke='%2322d3ee' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='8'/%3E%3Cpath stroke-linecap='round' d='M12 1v4M12 19v4M1 12h4M19 12h4'/%3E%3C/g%3E%3Ccircle cx='12' cy='12' r='2' fill='%2322d3ee'/%3E%3C/svg%3E")
+      13 13,
+    pointer;
+}
+/* text inputs keep a usable I-beam */
+.batman input,
+.batman textarea,
+.batman [contenteditable="true"] {
+  cursor: text;
+}
+/* touch devices: custom cursors are pointless and can cause artifacts */
+@media (pointer: coarse) {
+  .batman,
+  .batman * {
+    cursor: auto;
+  }
+  .batman a,
+  .batman button,
+  .batman [role="button"],
+  .batman [data-slot="button"] {
+    cursor: pointer;
+  }
+}
+
+/* ── Buttons: illuminated tactical controls ─────────────────────────────────── */
+.batman [data-slot="button"] {
+  transition: transform 0.12s ease, box-shadow 0.15s ease, filter 0.15s ease;
+}
+.batman [data-slot="button"][class*="bg-primary"] {
+  background-image: linear-gradient(135deg, oklch(0.8 0.13 210), oklch(0.7 0.14 225));
+  box-shadow: 0 0 0 1px oklch(0.84 0.16 92 / 25%), 0 0 14px -4px var(--primary);
+}
+.batman [data-slot="button"]:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+.batman [data-slot="button"][class*="bg-primary"]:hover {
+  box-shadow: 0 0 0 1px oklch(0.84 0.16 92 / 45%), 0 0 18px -2px var(--primary);
+}
+.batman [data-slot="button"]:active {
+  transform: translateY(0);
+}
+
+/* ── Cards: intelligence panels with tactical corner brackets ───────────────── */
+.batman [data-slot="card"] {
+  position: relative;
+  overflow: hidden;
+  border-color: oklch(0.85 0.06 215 / 16%);
+  box-shadow: 0 1px 0 0 oklch(0.85 0.1 215 / 8%) inset, 0 6px 20px -12px oklch(0 0 0 / 80%);
+}
+/* top-left bracket */
+.batman [data-slot="card"]::before {
+  content: "";
+  position: absolute;
+  top: 7px;
+  left: 7px;
+  width: 11px;
+  height: 11px;
+  border-top: 1.5px solid var(--bat-signal);
+  border-left: 1.5px solid var(--bat-signal);
+  opacity: 0.45;
+  pointer-events: none;
+}
+/* bottom-right bracket */
+.batman [data-slot="card"]::after {
+  content: "";
+  position: absolute;
+  bottom: 7px;
+  right: 7px;
+  width: 11px;
+  height: 11px;
+  border-bottom: 1.5px solid var(--primary);
+  border-right: 1.5px solid var(--primary);
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* ── Inputs: HUD focus glow ─────────────────────────────────────────────────── */
+.batman [data-slot="input"]:focus-visible,
+.batman [data-slot="textarea"]:focus-visible {
+  box-shadow: 0 0 0 1px var(--ring), 0 0 12px -4px var(--primary);
+}
+
+/* ── Dividers: thin cyan rule ───────────────────────────────────────────────── */
+.batman hr {
+  border: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, oklch(0.78 0.13 215 / 35%), transparent);
+}
+
+/* ── Sidebar active item: scan bar + glow + animated data-pulse marker ──────── */
+.batman [data-slot="sidebar-link"] {
+  position: relative;
+}
+.batman [data-slot="sidebar-link"][data-active="true"] {
+  box-shadow: 0 0 0 1px oklch(0.78 0.13 215 / 18%), 0 0 16px -6px var(--primary);
+}
+/* cyan scan bar on the left edge */
+.batman [data-slot="sidebar-link"][data-active="true"]::before {
+  content: "";
+  position: absolute;
+  left: -2px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 62%;
+  background: linear-gradient(180deg, var(--primary), var(--bat-signal));
+  box-shadow: 0 0 8px 0 var(--primary);
+}
+/* animated targeting / data-pulse marker on the right */
+.batman [data-slot="sidebar-link"][data-active="true"]::after {
+  content: "";
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  background: var(--bat-signal);
+  box-shadow: 0 0 8px 1px var(--bat-signal);
+  animation: bat-marker 1.6s ease-in-out infinite;
+}
+
+/* ── Page corner decorations (opt-in via data-bat-corner) ───────────────────── */
+.batman [data-bat-corner] {
+  position: relative;
+}
+.batman [data-bat-corner]::after {
+  content: "";
+  position: absolute;
+  top: -4px;
+  right: -2px;
+  width: 16px;
+  height: 16px;
+  border-top: 1.5px solid var(--primary);
+  border-right: 1.5px solid var(--primary);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ── Animations (transform / opacity only — GPU-friendly) ───────────────────── */
+@keyframes bat-scan {
+  0% { transform: translateY(-10vh); }
+  100% { transform: translateY(110vh); }
+}
+@keyframes bat-radar {
+  0% { transform: scale(0.4); opacity: 0.5; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+@keyframes bat-pulse {
+  0%, 100% { opacity: 0.6; transform: scale(0.94); }
+  50% { opacity: 1; transform: scale(1.06); }
+}
+@keyframes bat-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes bat-flicker {
+  0%, 100% { opacity: 1; }
+  45% { opacity: 0.85; }
+  50% { opacity: 0.5; }
+  55% { opacity: 0.92; }
+}
+@keyframes bat-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes bat-float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+@keyframes bat-grid-pan {
+  0% { background-position: 0 0; }
+  100% { background-position: 44px 44px; }
+}
+@keyframes bat-marker {
+  0%, 100% { opacity: 0.5; transform: translateY(-50%) scale(0.9); }
+  50% { opacity: 1; transform: translateY(-50%) scale(1.2); }
+}
+@keyframes bat-boot-fade {
+  0% { opacity: 0; }
+  25% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes bat-boot-sweep {
+  0% { top: 0; opacity: 0; }
+  15% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+@keyframes bat-boot-pop {
+  0% { transform: scale(0.85); opacity: 0; }
+  60% { transform: scale(1.03); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.bat-scanline { animation: bat-scan 9s linear infinite; }
+.bat-radar-pulse { animation: bat-radar 4s ease-out infinite; }
+.bat-pulse { animation: bat-pulse 1.8s ease-in-out infinite; }
+.bat-spin { animation: bat-spin 3s linear infinite; }
+.bat-spin-slow { animation: bat-spin 9s linear infinite; }
+.bat-flicker { animation: bat-flicker 2.6s ease-in-out infinite; }
+.bat-float { animation: bat-float 5s ease-in-out infinite; }
+.bat-float-slow { animation: bat-float-slow 7s ease-in-out infinite; }
+.bat-grid { animation: bat-grid-pan 40s linear infinite; }
+.bat-boot-fade { animation: bat-boot-fade 2s ease-in-out forwards; }
+.bat-boot-sweep { animation: bat-boot-sweep 1.2s ease-out forwards; }
+.bat-boot-pop { animation: bat-boot-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+/* ── Accessibility: respect reduced motion ──────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .bat-scanline,
+  .bat-radar-pulse,
+  .bat-pulse,
+  .bat-spin,
+  .bat-spin-slow,
+  .bat-flicker,
+  .bat-float,
+  .bat-float-slow,
+  .bat-grid,
+  .bat-boot-fade,
+  .bat-boot-sweep,
+  .bat-boot-pop,
+  .batman [data-slot="sidebar-link"][data-active="true"]::after,
+  .batman [data-slot="button"]:hover {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}

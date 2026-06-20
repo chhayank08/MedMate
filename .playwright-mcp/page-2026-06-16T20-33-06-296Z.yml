@@ -1,0 +1,53 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - link "MedMate AI" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e5]:
+          - img [ref=e7]
+          - generic [ref=e11]: MedMate AI
+      - button "Toggle theme" [ref=e12]:
+        - img
+    - main [ref=e13]:
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - heading "Welcome back" [level=1] [ref=e17]
+          - paragraph [ref=e18]: Sign in to continue studying.
+        - generic [ref=e19]:
+          - generic [ref=e20]:
+            - generic [ref=e21]: Email
+            - textbox "Email" [ref=e22]:
+              - /placeholder: you@med.school
+              - text: chayankkashyap2000@gmail.com
+          - generic [ref=e23]:
+            - generic [ref=e24]:
+              - generic [ref=e25]: Password
+              - link "Forgot?" [ref=e26] [cursor=pointer]:
+                - /url: /reset-password
+            - textbox "Password" [ref=e27]:
+              - /placeholder: ••••••••
+              - text: qwertyuiop
+          - button "Sign in" [disabled]:
+            - img
+            - text: Sign in
+        - generic [ref=e29]: OR
+        - button "Continue with Google" [ref=e32]:
+          - img
+          - text: Continue with Google
+        - paragraph [ref=e33]:
+          - text: New here?
+          - link "Create an account" [ref=e34] [cursor=pointer]:
+            - /url: /signup
+  - region "Notifications alt+T":
+    - list:
+      - listitem [ref=e45]:
+        - img [ref=e47]
+        - generic [ref=e51]: Welcome back!
+  - button "Open Next.js Dev Tools" [ref=e52] [cursor=pointer]:
+    - generic [ref=e55]:
+      - text: Rendering
+      - generic [ref=e56]:
+        - generic [ref=e57]: .
+        - generic [ref=e58]: .
+        - generic [ref=e59]: .
+  - alert [ref=e44]
