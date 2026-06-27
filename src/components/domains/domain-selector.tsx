@@ -9,7 +9,7 @@ import { useMemo, useCallback, type MouseEvent } from 'react';
 import { Domain } from '@/types/domain.types';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Check } from 'lucide-react';
+import { Check, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface DomainSelectorProps {
@@ -20,21 +20,34 @@ interface DomainSelectorProps {
 }
 
 export function DomainSelector({ domains, selectedDomains, onSelectionChange, maxSelections }: DomainSelectorProps) {
-  const validDomains = useMemo(() => 
-    (domains || []).filter(d => d && d.domain_id), 
-    [domains]
-  );
+  const validDomains = useMemo(() => {
+    try {
+      return (domains || []).filter(d => d && d.domain_id && d.name);
+    } catch (error) {
+      console.error('[DomainSelector] Error filtering domains:', error);
+      return [];
+    }
+  }, [domains]);
 
-  const validSelectedDomains = useMemo(() => 
-    (selectedDomains || []).filter(Boolean),
-    [selectedDomains]
-  );
+  const validSelectedDomains = useMemo(() => {
+    try {
+      return (selectedDomains || []).filter(id => id && typeof id === 'string');
+    } catch (error) {
+      console.error('[DomainSelector] Error filtering selected domains:', error);
+      return [];
+    }
+  }, [selectedDomains]);
 
   const handleToggle = useCallback((domainId: string, e: MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
     try {
+      if (!domainId || typeof domainId !== 'string') {
+        console.warn('[DomainSelector] Invalid domain ID:', domainId);
+        return;
+      }
+
       const isSelected = validSelectedDomains.includes(domainId);
       const newSelection = isSelected 
         ? validSelectedDomains.filter(id => id !== domainId)
@@ -42,7 +55,7 @@ export function DomainSelector({ domains, selectedDomains, onSelectionChange, ma
           ? [...validSelectedDomains, domainId] 
           : validSelectedDomains;
       
-      if (JSON.stringify(newSelection) !== JSON.stringify(validSelectedDomains)) {
+      if (JSON.stringify(newSelection.sort()) !== JSON.stringify(validSelectedDomains.sort())) {
         onSelectionChange(newSelection);
       }
     } catch (error) {
@@ -50,39 +63,53 @@ export function DomainSelector({ domains, selectedDomains, onSelectionChange, ma
     }
   }, [validSelectedDomains, maxSelections, onSelectionChange]);
 
+  if (!validDomains.length) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12 text-center">
+        <AlertCircle className="h-10 w-10 text-muted-foreground mb-3" />
+        <p className="text-sm text-muted-foreground">No domains available</p>
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {validDomains.map(domain => {
-        const isSelected = validSelectedDomains.includes(domain.domain_id);
-        const isDisabled = !isSelected && validSelectedDomains.length >= maxSelections;
+        try {
+          const isSelected = validSelectedDomains.includes(domain.domain_id);
+          const isDisabled = !isSelected && validSelectedDomains.length >= maxSelections;
 
-        return (
-          <Card
-            key={domain.domain_id}
-            className={cn(
-              "p-4 cursor-pointer transition-all hover:scale-102",
-              isSelected && "border-primary bg-primary/5",
-              isDisabled && "opacity-50 cursor-not-allowed"
-            )}
-            onClick={(e) => !isDisabled && handleToggle(domain.domain_id, e)}
-            role="button"
-            tabIndex={isDisabled ? -1 : 0}
-            aria-pressed={isSelected}
-            aria-disabled={isDisabled}
-          >
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <h3 className="font-semibold">{domain.name || 'Unnamed Domain'}</h3>
-                {domain.description && <p className="text-sm text-muted-foreground mt-1">{domain.description}</p>}
-              </div>
-              {isSelected && (
-                <Badge variant="default" className="shrink-0">
-                  <Check className="h-3 w-3" />
-                </Badge>
+          return (
+            <Card
+              key={domain.domain_id}
+              className={cn(
+                "p-4 cursor-pointer transition-all hover:scale-102",
+                isSelected && "border-primary bg-primary/5",
+                isDisabled && "opacity-50 cursor-not-allowed"
               )}
-            </div>
-          </Card>
-        );
+              onClick={(e) => !isDisabled && handleToggle(domain.domain_id, e)}
+              role="button"
+              tabIndex={isDisabled ? -1 : 0}
+              aria-pressed={isSelected}
+              aria-disabled={isDisabled}
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h3 className="font-semibold">{domain.name || 'Unnamed Domain'}</h3>
+                  {domain.description && <p className="text-sm text-muted-foreground mt-1">{domain.description}</p>}
+                </div>
+                {isSelected && (
+                  <Badge variant="default" className="shrink-0">
+                    <Check className="h-3 w-3" />
+                  </Badge>
+                )}
+              </div>
+            </Card>
+          );
+        } catch (error) {
+          console.error('[DomainSelector] Error rendering domain:', domain, error);
+          return null;
+        }
       })}
     </div>
   );

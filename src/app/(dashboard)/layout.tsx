@@ -7,6 +7,7 @@ import { HKBanner } from "@/components/shared/hk-decorations";
 import { HKBackground } from "@/components/shared/hk-background";
 import { BatBanner } from "@/components/shared/bat-decorations";
 import { BatBackground } from "@/components/shared/bat-background";
+import { ErrorBoundary } from "@/components/shared/error-boundary";
 
 export default async function DashboardLayout({
   children,
@@ -48,7 +49,9 @@ export default async function DashboardLayout({
         <BatBanner />
         <Topbar name={name} email={email} avatarUrl={avatarUrl} />
         <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">
-          <div className="mx-auto w-full max-w-6xl">{children}</div>
+          <div className="mx-auto w-full max-w-6xl">
+            <ErrorBoundary>{children}</ErrorBoundary>
+          </div>
         </main>
       </div>
       <ReminderScheduler />

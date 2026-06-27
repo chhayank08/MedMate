@@ -23,28 +23,38 @@ export async function GET() {
     const { data: predefined, error: predefinedError } = await supabase
       .from('domains')
       .select('*')
-      .eq('is_predefined', true);
+      .eq('is_predefined', true)
+      .order('name');
 
-    if (predefinedError) throw predefinedError;
+    if (predefinedError) {
+      console.error('[Domains API] Predefined domains error:', predefinedError);
+      throw predefinedError;
+    }
 
     // Get user's custom domains
     const { data: custom, error: customError } = await supabase
       .from('domains')
       .select('*')
       .eq('created_by', user.id)
-      .eq('is_predefined', false);
+      .eq('is_predefined', false)
+      .order('name');
 
-    if (customError) throw customError;
+    if (customError) {
+      console.error('[Domains API] Custom domains error:', customError);
+      throw customError;
+    }
+
+    const response = {
+      predefined: Array.isArray(predefined) ? predefined.filter(d => d?.domain_id && d?.name) : [],
+      custom: Array.isArray(custom) ? custom.filter(d => d?.domain_id && d?.name) : []
+    };
 
     return NextResponse.json({
       success: true,
-      data: {
-        predefined: predefined || [],
-        custom: custom || []
-      }
+      data: response
     });
   } catch (error) {
-    console.error('Error loading domains:', error);
+    console.error('[Domains API] GET error:', error);
     return NextResponse.json(
       { 
         success: false, 

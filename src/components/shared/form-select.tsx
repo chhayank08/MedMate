@@ -8,16 +8,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { useMemo } from "react";
 
 export interface SelectOption {
   value: string;
   label: string;
 }
 
-/**
- * Thin wrapper over the (base-ui) shadcn Select that takes a simple options
- * array. `items` lets base-ui render the selected label in the trigger.
- */
 export function FormSelect({
   value,
   onValueChange,
@@ -33,17 +30,19 @@ export function FormSelect({
   className?: string;
   id?: string;
 }) {
+  const safeOptions = useMemo(() => (options || []).filter(o => o?.value && o?.label), [options]);
+  const safeValue = value || "";
+
   return (
     <Select
-      value={value}
+      value={safeValue}
       onValueChange={(v) => onValueChange((v as string) ?? "")}
-      items={options}
     >
       <SelectTrigger id={id} className={cn("w-full", className)}>
         <SelectValue placeholder={placeholder} />
       </SelectTrigger>
       <SelectContent>
-        {options.map((o) => (
+        {safeOptions.map((o) => (
           <SelectItem key={o.value} value={o.value}>
             {o.label}
           </SelectItem>

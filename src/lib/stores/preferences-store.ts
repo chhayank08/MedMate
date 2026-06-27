@@ -31,33 +31,59 @@ export const usePreferencesStore = create<PreferencesState>((set, get) => ({
   loadPreferences: async () => {
     set({ isLoading: true, error: null });
     try {
-      const res = await fetch('/api/preferences');
+      const res = await fetch('/api/preferences', { 
+        headers: { 'Content-Type': 'application/json' },
+        cache: 'no-store'
+      });
+      
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+      }
+      
       const json = await res.json();
-      if (!json.success) throw new Error(json.error.message);
+      if (!json.success) throw new Error(json.error?.message || 'Failed to load preferences');
       
       const prefs = json.data;
+      if (!prefs || typeof prefs !== 'object') {
+        throw new Error('Invalid preferences data');
+      }
+      
       set({ preferences: prefs, isLoading: false, lastSyncedAt: new Date() });
       
-      // Cache preferences and sync active domain to localStorage
-      localStorage.setItem('preferences_cache', JSON.stringify(prefs));
+      // Cache preferences safely
+      try {
+        localStorage.setItem('preferences_cache', JSON.stringify(prefs));
+      } catch (cacheError) {
+        console.warn('[PreferencesStore] Failed to cache preferences:', cacheError);
+      }
       
       // Persist active domain for domain-config system
-      if (prefs.domains && prefs.domains.length > 0) {
-        const activeDomain = prefs.domains[0];
-        const domainKey = activeDomain.name?.toLowerCase().replace(/\s+/g, '_');
-        if (domainKey) {
-          localStorage.setItem('prepbud:active-domain', domainKey);
+      if (Array.isArray(prefs.domains) && prefs.domains.length > 0) {
+        try {
+          const activeDomain = prefs.domains[0];
+          if (activeDomain?.name) {
+            const domainKey = activeDomain.name.toLowerCase().replace(/\s+/g, '_');
+            localStorage.setItem('prepbud:active-domain', domainKey);
+          }
+        } catch (domainError) {
+          console.warn('[PreferencesStore] Failed to sync active domain:', domainError);
         }
       }
     } catch (error) {
+      console.error('[PreferencesStore] Load preferences error:', error);
       set({ error: error as Error, isLoading: false });
-      const cached = localStorage.getItem('preferences_cache');
-      if (cached) {
-        try {
-          set({ preferences: JSON.parse(cached) });
-        } catch {
-          // Invalid cache, ignore
+      
+      // Fallback to cached preferences
+      try {
+        const cached = localStorage.getItem('preferences_cache');
+        if (cached) {
+          const parsedCache = JSON.parse(cached);
+          if (parsedCache && typeof parsedCache === 'object') {
+            set({ preferences: parsedCache });
+          }
         }
+      } catch (cacheError) {
+        console.warn('[PreferencesStore] Failed to load cache:', cacheError);
       }
     }
   },
@@ -78,34 +104,52 @@ export const usePreferencesStore = create<PreferencesState>((set, get) => ({
     }));
 
     try {
+      if (!Array.isArray(domains)) {
+        throw new Error('Invalid domains array');
+      }
+
       const res = await fetch('/api/preferences/domains', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ domains })
       });
+      
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+      }
+      
       const json = await res.json();
       if (!json.success) { 
         get()._rollback(updateId); 
-        throw new Error(json.error.message); 
+        throw new Error(json.error?.message || 'Failed to update domains'); 
       }
       
       set(state => {
         if (!state.preferences) return state;
+        
         const newPrefs = { 
           ...state.preferences, 
-          domains: json.data.domains || [], 
-          subjects: json.data.subjects || previousSubjects || []
+          domains: Array.isArray(json.data?.domains) ? json.data.domains : [], 
+          subjects: Array.isArray(json.data?.subjects) ? json.data.subjects : (previousSubjects || [])
         };
         
         // Update localStorage cache
-        localStorage.setItem('preferences_cache', JSON.stringify(newPrefs));
+        try {
+          localStorage.setItem('preferences_cache', JSON.stringify(newPrefs));
+        } catch (cacheError) {
+          console.warn('[PreferencesStore] Cache update failed:', cacheError);
+        }
         
         // Sync active domain
         if (newPrefs.domains && newPrefs.domains.length > 0) {
-          const activeDomain = newPrefs.domains[0];
-          const domainKey = activeDomain.name?.toLowerCase().replace(/\s+/g, '_');
-          if (domainKey) {
-            localStorage.setItem('prepbud:active-domain', domainKey);
+          try {
+            const activeDomain = newPrefs.domains[0];
+            if (activeDomain?.name) {
+              const domainKey = activeDomain.name.toLowerCase().replace(/\s+/g, '_');
+              localStorage.setItem('prepbud:active-domain', domainKey);
+            }
+          } catch (domainError) {
+            console.warn('[PreferencesStore] Domain sync failed:', domainError);
           }
         }
         
@@ -116,6 +160,7 @@ export const usePreferencesStore = create<PreferencesState>((set, get) => ({
         };
       });
     } catch (error) {
+      console.error('[PreferencesStore] Update domains error:', error);
       get()._rollback(updateId);
       throw error;
     }
