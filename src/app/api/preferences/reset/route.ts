@@ -5,20 +5,13 @@
 // ============================================================================
 
 import { NextResponse } from 'next/server';
-import { getUser } from '@/lib/supabase/server';
-import { createClient } from '@/lib/supabase/server';
+import { guard } from '@/lib/api';
 
 export async function POST() {
   try {
-    const supabase = await createClient();
-    const user = await getUser();
-
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: { code: 'UNAUTHORIZED', message: 'Authentication required' } },
-        { status: 401 }
-      );
-    }
+    const auth = await guard('preferences:reset');
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth;
 
     // Delete all domains
     const { error: domainsError } = await supabase

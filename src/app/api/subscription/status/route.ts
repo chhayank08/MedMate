@@ -4,15 +4,14 @@
 // ============================================================================
 
 import { NextResponse } from 'next/server';
-import { getUser } from '@/lib/supabase/server';
-import { createClient } from '@/lib/supabase/server';
+import { guard } from '@/lib/api';
 import { TIER_LIMITS } from '@/types/subscription.types';
 
 export async function GET() {
   try {
-    const supabase = await createClient();
-    const user = await getUser();
-    if (!user) return NextResponse.json({ success: false, error: { code: 'UNAUTHORIZED', message: 'Authentication required' } }, { status: 401 });
+    const auth = await guard('subscription:status');
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth;
 
     const { data: subscription } = await supabase.from('subscriptions').select('*').eq('user_id', user.id).single();
     const tier = subscription?.tier || 'free';

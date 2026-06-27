@@ -5,8 +5,7 @@
 // ============================================================================
 
 import { NextResponse } from 'next/server';
-import { getUser } from '@/lib/supabase/server';
-import { createClient } from '@/lib/supabase/server';
+import { guard } from '@/lib/api';
 import { z } from 'zod';
 
 const uiSettingsSchema = z.object({
@@ -22,15 +21,9 @@ const uiSettingsSchema = z.object({
 
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient();
-    const user = await getUser();
-
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: { code: 'UNAUTHORIZED', message: 'Authentication required' } },
-        { status: 401 }
-      );
-    }
+    const auth = await guard('preferences:ui-settings');
+    if (!auth.ok) return auth.response;
+    const { user, supabase } = auth;
 
     const body = await request.json();
     const validation = uiSettingsSchema.safeParse(body);
