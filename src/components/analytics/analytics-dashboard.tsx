@@ -96,8 +96,8 @@ export function AnalyticsDashboard({ data }: { data: AnalyticsData }) {
             <CardTitle className="text-base">Study time (last 14 days)</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%" minHeight={200}>
                 <BarChart data={data.studyTrend}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                   <XAxis dataKey="date" tick={AXIS} tickLine={false} axisLine={false} interval="preserveStartEnd" />
@@ -116,8 +116,8 @@ export function AnalyticsDashboard({ data }: { data: AnalyticsData }) {
           </CardHeader>
           <CardContent>
             {data.accuracyTrend.length >= 2 ? (
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
+              <div className="h-64 w-full">
+                <ResponsiveContainer width="100%" height="100%" minHeight={200}>
                   <LineChart data={data.accuracyTrend}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                     <XAxis dataKey="date" tick={AXIS} tickLine={false} axisLine={false} interval="preserveStartEnd" />
@@ -141,8 +141,8 @@ export function AnalyticsDashboard({ data }: { data: AnalyticsData }) {
           </CardHeader>
           <CardContent>
             {data.subjectPerformance.length ? (
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
+              <div className="h-64 w-full">
+                <ResponsiveContainer width="100%" height="100%" minHeight={200}>
                   <BarChart data={data.subjectPerformance} layout="vertical" margin={{ left: 10 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
                     <XAxis type="number" domain={[0, 100]} tick={AXIS} tickLine={false} axisLine={false} />
@@ -164,8 +164,8 @@ export function AnalyticsDashboard({ data }: { data: AnalyticsData }) {
           </CardHeader>
           <CardContent>
             {data.ratingDistribution.length ? (
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
+              <div className="h-64 w-full">
+                <ResponsiveContainer width="100%" height="100%" minHeight={200}>
                   <PieChart>
                     <Pie data={data.ratingDistribution} dataKey="value" nameKey="name" innerRadius={50} outerRadius={85} paddingAngle={2}>
                       {data.ratingDistribution.map((_, i) => (

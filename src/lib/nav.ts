@@ -6,6 +6,7 @@ import {
   CalendarRange,
   LineChart,
   Settings,
+  CreditCard,
   type LucideIcon,
 } from "lucide-react";
 
@@ -22,5 +23,6 @@ export const NAV_ITEMS: NavItem[] = [
   { title: "Summaries", href: "/summaries", icon: FileText },
   { title: "Study Planner", href: "/planner", icon: CalendarRange },
   { title: "Analytics", href: "/analytics", icon: LineChart },
+  { title: "Subscription", href: "/settings?tab=subscription", icon: CreditCard },
   { title: "Settings", href: "/settings", icon: Settings },
 ];

@@ -1,5 +1,6 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProfileForm } from "@/components/settings/profile-form";
 import { AcademicProfileForm } from "@/components/settings/academic-profile-form";
@@ -21,6 +22,8 @@ import { UpgradeModal } from "@/components/subscription/upgrade-modal";
 import { useState } from "react";
 
 export function SettingsTabs({ userEmail }: { userEmail?: string }) {
+  const searchParams = useSearchParams();
+  const tabParam = searchParams?.get('tab');
   const { data: profile, isLoading } = useProfile();
   const { preferences, updateDomains, updateSubjects } = usePreferences();
   const { predefinedDomains, customDomains } = useDomains();
@@ -58,7 +61,7 @@ export function SettingsTabs({ userEmail }: { userEmail?: string }) {
 
   return (
     <>
-      <Tabs defaultValue="profile">
+      <Tabs defaultValue={tabParam || "profile"}>
         <TabsList className="mb-6 grid w-full grid-cols-7">
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="domains">Domains</TabsTrigger>
