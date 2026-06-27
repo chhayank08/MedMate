@@ -8,6 +8,7 @@ import { HKBackground } from "@/components/shared/hk-background";
 import { BatBanner } from "@/components/shared/bat-decorations";
 import { BatBackground } from "@/components/shared/bat-background";
 import { ErrorBoundary } from "@/components/shared/error-boundary";
+import { SettingsInitializer } from "@/components/shared/settings-initializer";
 
 export default async function DashboardLayout({
   children,
@@ -41,6 +42,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex min-h-dvh">
+      <SettingsInitializer />
       <HKBackground />
       <BatBackground />
       <DesktopSidebar />

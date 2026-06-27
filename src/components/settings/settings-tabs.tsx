@@ -13,38 +13,52 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useProfile } from "@/hooks/use-profile";
 import { DomainSelector } from "@/components/domains/domain-selector";
 import { SubjectTogglePanel } from "@/components/subjects/subject-toggle-panel";
-import { usePreferences } from "@/hooks/use-preferences";
 import { useDomains } from "@/hooks/use-domains";
 import { useSubscription } from "@/hooks/use-subscription";
+import { useGlobalSettings } from "@/lib/stores/global-settings-store";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { UpgradeModal } from "@/components/subscription/upgrade-modal";
 import { ErrorBoundary } from "@/components/shared/error-boundary";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
+import { toast } from "sonner";
 
 export function SettingsTabs({ userEmail }: { userEmail?: string }) {
   const searchParams = useSearchParams();
   const tabParam = searchParams?.get('tab');
-  const { data: profile, isLoading } = useProfile();
-  const { preferences, updateDomains, updateSubjects } = usePreferences();
+  const { data: profile, isLoading: profileLoading } = useProfile();
   const { predefinedDomains, customDomains } = useDomains();
   const { usage, limits } = useSubscription();
-  const [upgradeModal, setUpgradeModal] = useState<{ isOpen: boolean; limitType: string; currentUsage: number; currentLimit: number; recommendedTier: 'pro' | 'premium' } | null>(null);
+  const { 
+    domains: storeDomains,
+    selectedDomainIds, 
+    subjects,
+    selectDomains, 
+    toggleSubject,
+    isLoading: settingsLoading,
+    isInitialized
+  } = useGlobalSettings();
+  
+  const [upgradeModal, setUpgradeModal] = useState<{ 
+    isOpen: boolean; 
+    limitType: string; 
+    currentUsage: number; 
+    currentLimit: number; 
+    recommendedTier: 'pro' | 'premium' 
+  } | null>(null);
 
   const allDomains = useMemo(() => {
     const predefined = Array.isArray(predefinedDomains) ? predefinedDomains : [];
     const custom = Array.isArray(customDomains) ? customDomains : [];
-    return [...predefined, ...custom].filter(d => d?.domain_id);
+    return [...predefined, ...custom].filter(d => d?.domain_id && d?.name);
   }, [predefinedDomains, customDomains]);
 
-  const selectedDomainIds = useMemo(() => {
-    const prefs = preferences?.domains || [];
-    return prefs.map(d => d?.domain_id).filter(Boolean) as string[];
-  }, [preferences]);
-
-  if (isLoading) return <Skeleton className="h-96 w-full rounded-xl" />;
-
-  const handleDomainChange = (domainIds: string[]) => {
+  const handleDomainChange = useCallback(async (domainIds: string[]) => {
     try {
+      if (!domainIds || domainIds.length === 0) {
+        toast.error('You must select at least one domain');
+        return;
+      }
+
       if (limits && domainIds.length > limits.domains) {
         setUpgradeModal({
           isOpen: true,
@@ -55,25 +69,26 @@ export function SettingsTabs({ userEmail }: { userEmail?: string }) {
         });
         return;
       }
-      updateDomains(domainIds);
+      
+      await selectDomains(domainIds);
     } catch (error) {
       console.error('[SettingsTabs] Domain change error:', error);
+      toast.error('Failed to update domains');
     }
-  };
+  }, [limits, usage, selectDomains]);
 
-  const handleSubjectToggle = (subjectId: string, enabled: boolean) => {
+  const handleSubjectToggle = useCallback(async (subjectId: string, enabled: boolean) => {
     try {
-      const currentSubjects = preferences?.subjects || [];
-      const updated = currentSubjects.map(s => ({
-        subjectId: s.subject_id,
-        domainId: s.domain_id,
-        enabled: s.subject_id === subjectId ? enabled : s.enabled
-      }));
-      updateSubjects(updated);
+      await toggleSubject(subjectId, enabled);
     } catch (error) {
       console.error('[SettingsTabs] Subject toggle error:', error);
+      toast.error('Failed to update subject');
     }
-  };
+  }, [toggleSubject]);
+
+  if (profileLoading || !isInitialized) {
+    return <Skeleton className="h-96 w-full rounded-xl" />;
+  }
 
   return (
     <ErrorBoundary>
@@ -104,12 +119,16 @@ export function SettingsTabs({ userEmail }: { userEmail?: string }) {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <DomainSelector
-                  domains={allDomains}
-                  selectedDomains={selectedDomainIds}
-                  onSelectionChange={handleDomainChange}
-                  maxSelections={limits?.domains || 1}
-                />
+                {settingsLoading ? (
+                  <Skeleton className="h-48 w-full" />
+                ) : (
+                  <DomainSelector
+                    domains={allDomains}
+                    selectedDomains={selectedDomainIds}
+                    onSelectionChange={handleDomainChange}
+                    maxSelections={limits?.domains || 1}
+                  />
+                )}
               </CardContent>
             </Card>
 
@@ -121,9 +140,11 @@ export function SettingsTabs({ userEmail }: { userEmail?: string }) {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {preferences?.subjects && preferences.subjects.length > 0 ? (
+                {settingsLoading ? (
+                  <Skeleton className="h-48 w-full" />
+                ) : subjects && subjects.length > 0 ? (
                   <SubjectTogglePanel
-                    subjects={preferences.subjects}
+                    subjects={subjects}
                     onToggle={handleSubjectToggle}
                   />
                 ) : (

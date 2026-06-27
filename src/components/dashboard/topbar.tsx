@@ -14,7 +14,7 @@ import { Logo } from "@/components/shared/logo";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { SidebarNav } from "@/components/dashboard/sidebar";
 import { UserMenu } from "@/components/dashboard/user-menu";
-import { DomainSelectorButton } from "@/components/dashboard/domain-selector-button";
+import { HeaderDomainSwitcher } from "@/components/dashboard/header-domain-switcher";
 
 export function Topbar({
   name,
@@ -52,8 +52,8 @@ export function Topbar({
         </Link>
       </div>
 
-      <div className="ml-auto flex items-center gap-1">
-        <DomainSelectorButton />
+      <div className="ml-auto flex items-center gap-2">
+        <HeaderDomainSwitcher />
         <ThemeToggle />
         <UserMenu name={name} email={email} avatarUrl={avatarUrl} />
       </div>
