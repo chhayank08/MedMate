@@ -59,31 +59,35 @@ export function AccountSettingsForm({ userEmail }: { userEmail?: string }) {
         <CardHeader>
           <CardTitle>Change Password</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-2">
-            <Label htmlFor="new-password">New password</Label>
-            <Input
-              id="new-password"
-              type="password"
-              placeholder="Min 8 characters"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="confirm-password">Confirm new password</Label>
-            <Input
-              id="confirm-password"
-              type="password"
-              placeholder="Repeat your new password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
-          </div>
-          <Button onClick={changePassword} disabled={saving || !newPassword}>
-            {saving && <Loader2 className="size-4 animate-spin" />}
-            Update password
-          </Button>
+        <CardContent>
+          <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); changePassword(); }}>
+            <div className="grid gap-2">
+              <Label htmlFor="new-password">New password</Label>
+              <Input
+                id="new-password"
+                type="password"
+                placeholder="Min 8 characters"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                autoComplete="new-password"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="confirm-password">Confirm new password</Label>
+              <Input
+                id="confirm-password"
+                type="password"
+                placeholder="Repeat your new password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                autoComplete="new-password"
+              />
+            </div>
+            <Button type="submit" disabled={saving || !newPassword}>
+              {saving && <Loader2 className="size-4 animate-spin" />}
+              Update password
+            </Button>
+          </form>
         </CardContent>
       </Card>
     </div>
