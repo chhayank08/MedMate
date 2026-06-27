@@ -2,7 +2,6 @@
 
 import { useCallback, useMemo, useTransition, useState, useEffect } from "react";
 import { Layers, Check, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -83,23 +82,19 @@ export function DomainSelectorButton() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="gap-2" 
-          disabled={isPending || isLoading}
-        >
-          {isLoading ? (
-            <Loader2 className="size-4 animate-spin" />
-          ) : (
-            <Layers className="size-4" />
-          )}
-          <span className="hidden sm:inline">Domains</span>
-          <Badge variant="secondary" className="ml-1">
-            {selectedCount}/{maxDomains}
-          </Badge>
-        </Button>
+      <DropdownMenuTrigger
+        className="inline-flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-md border border-input bg-background px-3 text-sm font-medium shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50"
+        disabled={isPending || isLoading}
+      >
+        {isLoading ? (
+          <Loader2 className="size-4 animate-spin" />
+        ) : (
+          <Layers className="size-4" />
+        )}
+        <span className="hidden sm:inline">Domains</span>
+        <Badge variant="secondary" className="ml-1">
+          {selectedCount}/{maxDomains}
+        </Badge>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64">
         <DropdownMenuLabel>Learning Domains</DropdownMenuLabel>
