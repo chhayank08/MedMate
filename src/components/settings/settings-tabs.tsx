@@ -9,7 +9,6 @@ import { ReminderManager } from "@/components/shared/reminder-manager";
 import { AiPreferencesForm } from "@/components/settings/ai-preferences-form";
 import { AccountSettingsForm } from "@/components/settings/account-settings-form";
 import { AppearanceForm } from "@/components/settings/appearance-form";
-import { SubscriptionTab } from "@/components/settings/subscription-tab";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useProfile } from "@/hooks/use-profile";
 import { DomainSelector } from "@/components/domains/domain-selector";
@@ -62,12 +61,11 @@ export function SettingsTabs({ userEmail }: { userEmail?: string }) {
   return (
     <>
       <Tabs defaultValue={tabParam || "profile"}>
-        <TabsList className="mb-6 grid w-full grid-cols-7">
+        <TabsList className="mb-6 grid w-full grid-cols-6">
           <TabsTrigger value="profile">Profile</TabsTrigger>
           <TabsTrigger value="domains">Domains</TabsTrigger>
           <TabsTrigger value="study">Study</TabsTrigger>
           <TabsTrigger value="ai">AI</TabsTrigger>
-          <TabsTrigger value="subscription">Plan</TabsTrigger>
           <TabsTrigger value="account">Account</TabsTrigger>
           <TabsTrigger value="appearance">Theme</TabsTrigger>
         </TabsList>
@@ -122,10 +120,6 @@ export function SettingsTabs({ userEmail }: { userEmail?: string }) {
 
         <TabsContent value="ai">
           <AiPreferencesForm key={profile?.id} profile={profile ?? null} />
-        </TabsContent>
-
-        <TabsContent value="subscription">
-          <SubscriptionTab />
         </TabsContent>
 
         <TabsContent value="account">

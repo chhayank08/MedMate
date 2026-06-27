@@ -32,9 +32,8 @@ export function usePreferences() {
       toast.success('Domains updated');
     },
     onError: (error: Error) => {
-      toast.error('Failed to update domains', {
-        action: { label: 'Retry', onClick: () => updateDomains.mutate }
-      });
+      console.error('[usePreferences] Domain update failed:', error);
+      toast.error('Failed to update domains');
     }
   });
 

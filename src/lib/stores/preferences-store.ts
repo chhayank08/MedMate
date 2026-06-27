@@ -46,9 +46,16 @@ export const usePreferencesStore = create<PreferencesState>((set, get) => ({
   updateDomains: async (domains: string[]) => {
     const updateId = crypto.randomUUID();
     const previousValue = get().preferences?.domains;
+    const previousSubjects = get().preferences?.subjects;
+    
     set(state => ({
-      preferences: state.preferences ? { ...state.preferences, domains: [] } : null,
-      pendingUpdates: [...state.pendingUpdates, { id: updateId, type: 'domains', previousValue, newValue: domains, timestamp: new Date() }]
+      pendingUpdates: [...state.pendingUpdates, { 
+        id: updateId, 
+        type: 'domains', 
+        previousValue, 
+        newValue: domains, 
+        timestamp: new Date() 
+      }]
     }));
 
     try {
@@ -58,12 +65,23 @@ export const usePreferencesStore = create<PreferencesState>((set, get) => ({
         body: JSON.stringify({ domains })
       });
       const json = await res.json();
-      if (!json.success) { get()._rollback(updateId); throw new Error(json.error.message); }
-      set(state => ({
-        preferences: state.preferences ? { ...state.preferences, domains: json.data.domains, subjects: json.data.subjects } : null,
-        pendingUpdates: state.pendingUpdates.filter(u => u.id !== updateId),
-        lastSyncedAt: new Date()
-      }));
+      if (!json.success) { 
+        get()._rollback(updateId); 
+        throw new Error(json.error.message); 
+      }
+      
+      set(state => {
+        if (!state.preferences) return state;
+        return {
+          preferences: { 
+            ...state.preferences, 
+            domains: json.data.domains || [], 
+            subjects: json.data.subjects || previousSubjects || []
+          },
+          pendingUpdates: state.pendingUpdates.filter(u => u.id !== updateId),
+          lastSyncedAt: new Date()
+        };
+      });
     } catch (error) {
       get()._rollback(updateId);
       throw error;

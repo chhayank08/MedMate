@@ -5,6 +5,7 @@
 
 'use client';
 
+import { useMemo, useCallback } from 'react';
 import { Domain } from '@/types/domain.types';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -19,19 +20,38 @@ interface DomainSelectorProps {
 }
 
 export function DomainSelector({ domains, selectedDomains, onSelectionChange, maxSelections }: DomainSelectorProps) {
-  const handleToggle = (domainId: string) => {
-    const isSelected = selectedDomains.includes(domainId);
-    const newSelection = isSelected 
-      ? selectedDomains.filter(id => id !== domainId)
-      : selectedDomains.length < maxSelections ? [...selectedDomains, domainId] : selectedDomains;
-    onSelectionChange(newSelection);
-  };
+  const validDomains = useMemo(() => 
+    (domains || []).filter(d => d && d.domain_id), 
+    [domains]
+  );
+
+  const validSelectedDomains = useMemo(() => 
+    (selectedDomains || []).filter(Boolean),
+    [selectedDomains]
+  );
+
+  const handleToggle = useCallback((domainId: string) => {
+    try {
+      const isSelected = validSelectedDomains.includes(domainId);
+      const newSelection = isSelected 
+        ? validSelectedDomains.filter(id => id !== domainId)
+        : validSelectedDomains.length < maxSelections 
+          ? [...validSelectedDomains, domainId] 
+          : validSelectedDomains;
+      
+      if (newSelection !== validSelectedDomains) {
+        onSelectionChange(newSelection);
+      }
+    } catch (error) {
+      console.error('[DomainSelector] Toggle error:', error);
+    }
+  }, [validSelectedDomains, maxSelections, onSelectionChange]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {domains.map(domain => {
-        const isSelected = selectedDomains.includes(domain.domain_id);
-        const isDisabled = !isSelected && selectedDomains.length >= maxSelections;
+      {validDomains.map(domain => {
+        const isSelected = validSelectedDomains.includes(domain.domain_id);
+        const isDisabled = !isSelected && validSelectedDomains.length >= maxSelections;
 
         return (
           <Card
@@ -45,7 +65,7 @@ export function DomainSelector({ domains, selectedDomains, onSelectionChange, ma
           >
             <div className="flex items-start justify-between">
               <div>
-                <h3 className="font-semibold">{domain.name}</h3>
+                <h3 className="font-semibold">{domain.name || 'Unnamed Domain'}</h3>
                 {domain.description && <p className="text-sm text-muted-foreground mt-1">{domain.description}</p>}
               </div>
               {isSelected && <Badge><Check className="h-3 w-3" /></Badge>}
