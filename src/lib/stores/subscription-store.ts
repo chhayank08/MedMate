@@ -32,9 +32,92 @@ export const useSubscriptionStore = create<SubscriptionState>((set, get) => ({
       const res = await fetch('/api/subscription/status');
       const json = await res.json();
       if (!json.success) throw new Error(json.error.message);
-      set({ subscription: json.data.subscription, usage: json.data.usage, limits: json.data.limits, isLoading: false });
+      
+      const { subscription, usage, limits } = json.data;
+      
+      // Validate subscription tier
+      const validTiers = ['free', 'pro', 'premium'];
+      const tier = validTiers.includes(subscription.tier) ? subscription.tier : 'free';
+      
+      const validatedSubscription = {
+        ...subscription,
+        tier
+      };
+      
+      set({ 
+        subscription: validatedSubscription, 
+        usage, 
+        limits, 
+        isLoading: false 
+      });
+      
+      // Cache subscription state (read-only, never write to modify tier)
+      localStorage.setItem('subscription_cache', JSON.stringify({
+        tier,
+        cachedAt: new Date().toISOString()
+      }));
     } catch (error) {
       set({ error: error as Error, isLoading: false });
+      
+      // Fallback to cached state ONLY for display, never for authorization
+      const cached = localStorage.getItem('subscription_cache');
+      if (cached) {
+        try {
+          const { tier, cachedAt } = JSON.parse(cached);
+          const cacheAge = Date.now() - new Date(cachedAt).getTime();
+          
+          // Only use cache if less than 5 minutes old
+          if (cacheAge < 5 * 60 * 1000) {
+            set({ 
+              subscription: { tier } as any,
+              usage: null,
+              limits: tier === 'premium' ? {
+                domains: 10,
+                subjects: 10000,
+                quizzes: 500,
+                summaries: 500,
+                summaryTypes: []
+              } : tier === 'pro' ? {
+                domains: 3,
+                subjects: 10000,
+                quizzes: 50,
+                summaries: 50,
+                summaryTypes: []
+              } : {
+                domains: 1,
+                subjects: 3,
+                quizzes: 5,
+                summaries: 5,
+                summaryTypes: []
+              }
+            });
+          }
+        } catch {
+          // Invalid cache, default to free
+          set({
+            subscription: { tier: 'free' } as any,
+            limits: {
+              domains: 1,
+              subjects: 3,
+              quizzes: 5,
+              summaries: 5,
+              summaryTypes: []
+            }
+          });
+        }
+      } else {
+        // No cache, default to free tier
+        set({
+          subscription: { tier: 'free' } as any,
+          limits: {
+            domains: 1,
+            subjects: 3,
+            quizzes: 5,
+            summaries: 5,
+            summaryTypes: []
+          }
+        });
+      }
     }
   },
 

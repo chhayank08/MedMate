@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useSubscription } from "@/hooks/use-subscription";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Check, Sparkles, Crown, Zap, TrendingUp, Brain, FileText, Layers, X, PartyPopper } from "lucide-react";
+import { Check, Sparkles, Crown, Zap, TrendingUp, Brain, FileText, Layers, X, PartyPopper, Loader2 } from "lucide-react";
 import { TIER_LIMITS, type SubscriptionTier } from "@/types/subscription.types";
 import { cn } from "@/lib/utils";
 
@@ -119,6 +119,7 @@ function PlanCard({ tier, name, price, description, isCurrent, isPopular, featur
       <CardFooter className="pt-4 border-t">
         {isCurrent ? (
           <Button className="w-full" variant="outline" disabled>
+            <Check className="size-4 mr-2" />
             Current Plan
           </Button>
         ) : (
@@ -128,8 +129,16 @@ function PlanCard({ tier, name, price, description, isCurrent, isPopular, featur
               isPopular && "bg-gradient-to-r from-primary to-chart-1 hover:opacity-90"
             )}
             onClick={onUpgrade}
+            disabled={isCurrent}
           >
-            {tier === 'free' ? 'Downgrade' : tier === 'lifetime' ? 'Get Lifetime Access' : 'Upgrade to Pro'}
+            {tier === 'lifetime' ? (
+              <>
+                <Crown className="size-4 mr-2" />
+                Get Lifetime Access
+              </>
+            ) : (
+              'Upgrade to Pro'
+            )}
           </Button>
         )}
       </CardFooter>
@@ -142,17 +151,26 @@ export function SubscriptionPlans({ userId }: { userId?: string }) {
 
   if (isLoading) {
     return (
-      <div className="grid gap-8 md:grid-cols-3">
-        {[1, 2, 3].map(i => <Skeleton key={i} className="h-[600px] rounded-xl" />)}
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center space-y-3">
+          <Loader2 className="size-8 animate-spin mx-auto text-primary" />
+          <p className="text-sm text-muted-foreground">Loading subscription details...</p>
+        </div>
       </div>
     );
   }
 
   const currentTier = subscription?.tier || 'free';
   const isLifetime = currentTier === 'premium';
+  const isPro = currentTier === 'pro';
 
   const handleUpgrade = (tier: string) => {
+    if (tier === currentTier) {
+      toast.info('This is your current plan');
+      return;
+    }
     console.log('Upgrade to:', tier);
+    toast.info('Upgrade functionality coming soon!');
     // TODO: Implement Stripe checkout
   };
 
@@ -250,8 +268,8 @@ export function SubscriptionPlans({ userId }: { userId?: string }) {
           name="Pro"
           price="$9.99/month"
           description="For dedicated learners"
-          isCurrent={currentTier === 'pro'}
-          isPopular={!isLifetime}
+          isCurrent={isPro}
+          isPopular={currentTier === 'free'}
           features={PLAN_FEATURES.pro}
           onUpgrade={() => handleUpgrade('pro')}
         />

@@ -34,12 +34,31 @@ export const usePreferencesStore = create<PreferencesState>((set, get) => ({
       const res = await fetch('/api/preferences');
       const json = await res.json();
       if (!json.success) throw new Error(json.error.message);
-      set({ preferences: json.data, isLoading: false, lastSyncedAt: new Date() });
-      localStorage.setItem('preferences_cache', JSON.stringify(json.data));
+      
+      const prefs = json.data;
+      set({ preferences: prefs, isLoading: false, lastSyncedAt: new Date() });
+      
+      // Cache preferences and sync active domain to localStorage
+      localStorage.setItem('preferences_cache', JSON.stringify(prefs));
+      
+      // Persist active domain for domain-config system
+      if (prefs.domains && prefs.domains.length > 0) {
+        const activeDomain = prefs.domains[0];
+        const domainKey = activeDomain.name?.toLowerCase().replace(/\s+/g, '_');
+        if (domainKey) {
+          localStorage.setItem('prepbud:active-domain', domainKey);
+        }
+      }
     } catch (error) {
       set({ error: error as Error, isLoading: false });
       const cached = localStorage.getItem('preferences_cache');
-      if (cached) set({ preferences: JSON.parse(cached) });
+      if (cached) {
+        try {
+          set({ preferences: JSON.parse(cached) });
+        } catch {
+          // Invalid cache, ignore
+        }
+      }
     }
   },
 
@@ -72,12 +91,26 @@ export const usePreferencesStore = create<PreferencesState>((set, get) => ({
       
       set(state => {
         if (!state.preferences) return state;
+        const newPrefs = { 
+          ...state.preferences, 
+          domains: json.data.domains || [], 
+          subjects: json.data.subjects || previousSubjects || []
+        };
+        
+        // Update localStorage cache
+        localStorage.setItem('preferences_cache', JSON.stringify(newPrefs));
+        
+        // Sync active domain
+        if (newPrefs.domains && newPrefs.domains.length > 0) {
+          const activeDomain = newPrefs.domains[0];
+          const domainKey = activeDomain.name?.toLowerCase().replace(/\s+/g, '_');
+          if (domainKey) {
+            localStorage.setItem('prepbud:active-domain', domainKey);
+          }
+        }
+        
         return {
-          preferences: { 
-            ...state.preferences, 
-            domains: json.data.domains || [], 
-            subjects: json.data.subjects || previousSubjects || []
-          },
+          preferences: newPrefs,
           pendingUpdates: state.pendingUpdates.filter(u => u.id !== updateId),
           lastSyncedAt: new Date()
         };
