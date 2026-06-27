@@ -8,21 +8,31 @@ import { getSummaryProfile } from "@/lib/ai/summary-profiles";
 import { summarizeLarge } from "@/lib/ai/summarize-large";
 import { generateFlashcards } from "@/lib/ai/flashcards-batch";
 import { STREAM_DONE_MARKER, STREAM_HEARTBEAT_MARKER } from "@/lib/constants";
+import { checkTierLimit, incrementUsage } from "@/lib/services/tier-limits";
 
-// Large documents are summarized section-by-section (many sequential calls), so
-// allow a generous execution window on platforms that honor it.
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
-/** Emit a heartbeat at least this often so the connection never goes idle while
- *  a single (slow) provider call is in flight. Must stay well under both the
- *  client stall guard (120s) and typical proxy idle timeouts. */
 const HEARTBEAT_MS = 10_000;
 
 export async function POST(req: NextRequest) {
   const auth = await guard("ai:summary", { limit: 100, windowMs: 60_000 });
   if (!auth.ok) return auth.response;
   const { user, supabase } = auth;
+
+  // Check tier limits
+  const limitCheck = await checkTierLimit(user.id, 'generate_summary');
+  if (!limitCheck.allowed) {
+    return NextResponse.json(
+      { 
+        error: limitCheck.reason,
+        upgradeRequired: limitCheck.upgradeRequired,
+        currentUsage: limitCheck.currentUsage,
+        limit: limitCheck.limit
+      },
+      { status: 402 }
+    );
+  }
 
   let input;
   try {
@@ -32,6 +42,30 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    // Get user's enabled domains and subjects
+    const { data: userDomains } = await supabase.from('user_domains').select('domain_id');
+    const domainIds = (userDomains || []).map(d => d.domain_id);
+    
+    if (domainIds.length === 0) {
+      return NextResponse.json(
+        { error: 'Please select at least one domain in settings before generating summaries' },
+        { status: 400 }
+      );
+    }
+
+    const { data: userSubjects } = await supabase.from('user_subjects').select('subject_id, subjects(name, domain_id)');
+    const enabledSubjects = (userSubjects || []).map(us => us.subjects);
+    
+    if (enabledSubjects.length === 0) {
+      return NextResponse.json(
+        { error: 'Please enable at least one subject in settings before generating summaries' },
+        { status: 400 }
+      );
+    }
+
+    const targetDomainId = domainIds[0];
+    const targetSubjectId = enabledSubjects.find(s => s.domain_id === targetDomainId)?.subject_id || enabledSubjects[0]?.subject_id;
+
     const primarySubject = input.subjects?.[0] ?? input.subject ?? null;
 
     const [{ material }, profile] = await Promise.all([
@@ -42,8 +76,6 @@ export async function POST(req: NextRequest) {
         subject: primarySubject,
         documentId: input.documentId,
         title: input.title,
-        // Summaries must represent the WHOLE document — chunking happens inside
-        // the generators, so never RAG-reduce (which would drop sections).
         coverage: "full",
       }),
       getAcademicProfile(supabase, user.id),
@@ -51,7 +83,6 @@ export async function POST(req: NextRequest) {
     const ctx = academicContext(profile);
     const log = { supabase, userId: user.id };
 
-    // Flashcards: batched, validated JSON — always real Q&A pairs, never prose.
     if (getSummaryProfile(input.type).kind === "flashcards") {
       const data = await generateFlashcards({
         material,
@@ -62,10 +93,10 @@ export async function POST(req: NextRequest) {
         log,
         signal: req.signal,
       });
+      await incrementUsage(user.id, 'summary');
       return NextResponse.json(data);
     }
 
-    // All other types stream Markdown via the chunked map-reduce pipeline.
     const iterator = summarizeLarge({
       type: input.type,
       material,
@@ -77,8 +108,6 @@ export async function POST(req: NextRequest) {
       signal: req.signal,
     });
 
-    // Prime the generator so an upfront failure (config / immediate 402 /
-    // credit) surfaces as a proper HTTP error instead of a broken 200 stream.
     let primed: IteratorResult<string>;
     try {
       primed = await iterator.next();
@@ -91,17 +120,12 @@ export async function POST(req: NextRequest) {
     const heartbeatBytes = encoder.encode(STREAM_HEARTBEAT_MARKER);
     const stream = new ReadableStream<Uint8Array>({
       async start(controller) {
-        // Heartbeat: while a single section/reduce call is in flight the
-        // generator yields nothing, so push an (invisible, client-stripped)
-        // marker on an interval to keep the connection from idling out
-        // mid-stream (→ ERR_INCOMPLETE_CHUNKED_ENCODING).
         let alive = true;
         const heartbeat = setInterval(() => {
           if (!alive) return;
           try {
             controller.enqueue(heartbeatBytes);
           } catch {
-            // Controller already closed — stop beating.
             alive = false;
           }
         }, HEARTBEAT_MS);
@@ -112,12 +136,9 @@ export async function POST(req: NextRequest) {
             if (step.value) controller.enqueue(encoder.encode(step.value));
             step = await iterator.next();
           }
-          // Success sentinel: only here does the client treat output complete.
           controller.enqueue(encoder.encode(STREAM_DONE_MARKER));
+          await incrementUsage(user.id, 'summary');
         } catch (err) {
-          // Mid-stream failure: surface a short note, then close WITHOUT the
-          // sentinel so the client marks the result incomplete (offers retry)
-          // and never saves a truncated summary.
           const msg = err instanceof Error ? err.message : "Generation failed.";
           controller.enqueue(encoder.encode(`\n\n_⚠️ Generation stopped: ${msg}_`));
         } finally {

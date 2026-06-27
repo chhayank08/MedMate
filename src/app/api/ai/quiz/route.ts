@@ -6,9 +6,8 @@ import { resolveStudyMaterial } from "@/lib/rag/source";
 import { cacheKey, getCachedResponse, putCachedResponse } from "@/lib/ai/response-cache";
 import { quizRequestSchema, type GeneratedQuiz } from "@/lib/validations/ai";
 import { getAcademicProfile, academicContext } from "@/lib/ai/academic-context";
+import { checkTierLimit, incrementUsage } from "@/lib/services/tier-limits";
 
-// Quiz generation runs several sequential batched calls, so allow a generous
-// execution window (the vercel.json functions config sets the platform cap).
 export const runtime = "nodejs";
 export const maxDuration = 300;
 
@@ -16,6 +15,20 @@ export async function POST(req: NextRequest) {
   const auth = await guard("ai:quiz", { limit: 100 });
   if (!auth.ok) return auth.response;
   const { user, supabase } = auth;
+
+  // Check tier limits before generation
+  const limitCheck = await checkTierLimit(user.id, 'generate_quiz');
+  if (!limitCheck.allowed) {
+    return NextResponse.json(
+      { 
+        error: limitCheck.reason,
+        upgradeRequired: limitCheck.upgradeRequired,
+        currentUsage: limitCheck.currentUsage,
+        limit: limitCheck.limit
+      },
+      { status: 402 }
+    );
+  }
 
   let input;
   try {
@@ -27,6 +40,31 @@ export async function POST(req: NextRequest) {
   try {
     const primarySubject = input.subjects?.[0] ?? input.subject ?? null;
 
+    // Get user's enabled domains and subjects
+    const { data: userDomains } = await supabase.from('user_domains').select('domain_id');
+    const domainIds = (userDomains || []).map(d => d.domain_id);
+    
+    if (domainIds.length === 0) {
+      return NextResponse.json(
+        { error: 'Please select at least one domain in settings before generating quizzes' },
+        { status: 400 }
+      );
+    }
+
+    const { data: userSubjects } = await supabase.from('user_subjects').select('subject_id, subjects(name, domain_id)');
+    const enabledSubjects = (userSubjects || []).map(us => us.subjects);
+    
+    if (enabledSubjects.length === 0) {
+      return NextResponse.json(
+        { error: 'Please enable at least one subject in settings before generating quizzes' },
+        { status: 400 }
+      );
+    }
+
+    // Default to first enabled domain/subject if not specified
+    const targetDomainId = domainIds[0];
+    const targetSubjectId = enabledSubjects.find(s => s.domain_id === targetDomainId)?.subject_id || enabledSubjects[0]?.subject_id;
+
     const [{ material }, profile] = await Promise.all([
       resolveStudyMaterial({
         supabase,
@@ -35,16 +73,12 @@ export async function POST(req: NextRequest) {
         subject: primarySubject,
         documentId: input.documentId,
         title: input.title,
-        // Quiz is generated section-by-section (batched), so feed the WHOLE
-        // document — top-k retrieval would ignore most of the user's input.
         coverage: "full",
       }),
       getAcademicProfile(supabase, user.id),
     ]);
     const ctx = academicContext(profile);
 
-    // Dedupe identical requests within a short TTL (guards double-submits /
-    // retries from re-billing tokens). Fresh requests still generate anew.
     const key = cacheKey(user.id, "quiz", {
       material,
       subjects: input.subjects ?? null,
@@ -66,8 +100,6 @@ export async function POST(req: NextRequest) {
       generated = cached.generated;
       model = cached.model;
     } else {
-      // Generate in small batches (free-tier safe, never truncates the JSON);
-      // large material is covered section-by-section so all input is used.
       const out = await generateQuiz({
         material,
         subject: input.subject,
@@ -94,6 +126,8 @@ export async function POST(req: NextRequest) {
         user_id: user.id,
         title: input.title || generated.title || "Untitled quiz",
         subject: primarySubject,
+        domain_id: targetDomainId,
+        subject_id: targetSubjectId,
         difficulty: input.difficulty,
         num_questions: questions.length,
         timed: input.timed,
@@ -127,6 +161,9 @@ export async function POST(req: NextRequest) {
 
     const { error: qErr } = await supabase.from("questions").insert(rows);
     if (qErr) throw qErr;
+
+    // Increment usage counter
+    await incrementUsage(user.id, 'quiz');
 
     return NextResponse.json({ quizId: quiz.id });
   } catch (err) {

@@ -4,7 +4,7 @@
  * supabase/migrations/0001_init.sql.
  */
 
-export const APP_NAME = "MedMate AI";
+export const APP_NAME = "PrepBud";
 export const APP_DESCRIPTION =
   "Your AI-powered study coach for medical school — tasks, notes, quizzes, plans & analytics.";
 
@@ -131,15 +131,15 @@ export const STALE_REVISION_DAYS = 7;
 // Progress markers are transient status updates the client strips before
 // rendering, copying, or saving. Markers are HTML comments so the Markdown
 // renderer ignores any that briefly slip through.
-export const STREAM_DONE_MARKER = "<!--MEDMATE_DONE-->";
-export const STREAM_PROGRESS_PREFIX = "<!--MEDMATE_PROGRESS:";
+export const STREAM_DONE_MARKER = "<!--PREPBUD_DONE-->";
+export const STREAM_PROGRESS_PREFIX = "<!--PREPBUD_PROGRESS:";
 export const STREAM_PROGRESS_SUFFIX = "-->";
 // Emitted by the server on an interval during long provider calls so the
 // connection never goes idle (prevents proxy idle-timeout →
 // ERR_INCOMPLETE_CHUNKED_ENCODING). Carries no message, so it is stripped from
 // the rendered output but — unlike a progress marker — never overwrites the
 // visible progress text.
-export const STREAM_HEARTBEAT_MARKER = "<!--MEDMATE_HEARTBEAT-->";
+export const STREAM_HEARTBEAT_MARKER = "<!--PREPBUD_HEARTBEAT-->";
 
 /** True if a completed stream carries the success sentinel. */
 export function streamCompleted(text: string): boolean {
@@ -148,16 +148,16 @@ export function streamCompleted(text: string): boolean {
 
 /** The latest progress message embedded in the stream so far, if any. */
 export function latestStreamProgress(text: string): string | null {
-  const matches = text.match(/<!--MEDMATE_PROGRESS:([^>]*?)-->/g);
+  const matches = text.match(/<!--PREPBUD_PROGRESS:([^>]*?)-->/g);
   if (!matches || matches.length === 0) return null;
   const last = matches[matches.length - 1];
   return last.slice(STREAM_PROGRESS_PREFIX.length, -STREAM_PROGRESS_SUFFIX.length);
 }
 
-/** Remove all MedMate control markers (done + progress, incl. a dangling
+/** Remove all PrepBud control markers (done + progress, incl. a dangling
  *  partial marker at the end of a chunk boundary). */
 export function stripStreamMarkers(text: string): string {
   return text
-    .replace(/<!--MEDMATE_(?:DONE|HEARTBEAT|PROGRESS:[^>]*?)-->/g, "")
-    .replace(/<!--MEDMATE_[^>]*$/g, "");
+    .replace(/<!--PREPBUD_(?:DONE|HEARTBEAT|PROGRESS:[^>]*?)-->/g, "")
+    .replace(/<!--PREPBUD_[^>]*$/g, "");
 }

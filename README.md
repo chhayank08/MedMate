@@ -1,4 +1,4 @@
-# MedMate AI 🩺
+# PrepBud 🩺
 
 An AI-powered study companion for **medical students** — manage tasks, generate
 quizzes & summaries from your notes, build exam study plans, run spaced

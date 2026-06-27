@@ -1,6 +1,6 @@
 {
-  "name": "MedMate AI",
-  "short_name": "MedMate",
+  "name": "PrepBud",
+  "short_name": "PrepBud",
   "description": "AI-powered study coach for medical students.",
   "start_url": "/dashboard",
   "display": "standalone",

@@ -60,6 +60,12 @@ export type ProfileRow = {
   study_preferences: Json;
   ai_preferences: Json;
   preferred_subjects: Json;
+  theme: 'light' | 'dark' | 'system';
+  language: 'en' | 'es' | 'fr' | 'de';
+  display_density: 'compact' | 'standard' | 'comfortable';
+  notification_email: boolean;
+  notification_push: boolean;
+  notification_in_app: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -85,6 +91,8 @@ export type TaskRow = {
   title: string;
   description: string | null;
   subject: string | null;
+  domain_id: string | null;
+  subject_id: string | null;
   status: TaskStatus;
   priority: TaskPriority;
   due_date: string | null;
@@ -116,6 +124,8 @@ export type SummaryRow = {
   note_id: string | null;
   title: string | null;
   subject: string | null;
+  domain_id: string | null;
+  subject_id: string | null;
   source_text: string | null;
   type: SummaryTypeEnum;
   content: string;
@@ -129,6 +139,8 @@ export type QuizRow = {
   note_id: string | null;
   title: string;
   subject: string | null;
+  domain_id: string | null;
+  subject_id: string | null;
   difficulty: Difficulty;
   num_questions: number;
   timed: boolean;
@@ -227,6 +239,8 @@ export type SubjectAnalyticsRow = {
   id: string;
   user_id: string;
   subject: string;
+  domain_id: string | null;
+  subject_id: string | null;
   accuracy: number | null;
   study_minutes: number;
   quiz_count: number;
@@ -321,10 +335,70 @@ export type AiResponseCacheRow = {
   created_at: string;
 }
 
+// ─── Multi-Domain Tables (Tasks 1.1-1.3) ────────────────────────────────────
+
+export type DomainRow = {
+  domain_id: string;
+  name: string;
+  description: string | null;
+  icon_name: string | null;
+  is_predefined: boolean;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type UserDomainRow = {
+  user_id: string;
+  domain_id: string;
+  selected_at: string;
+}
+
+export type SubjectRow = {
+  subject_id: string;
+  domain_id: string;
+  name: string;
+  description: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type UserSubjectRow = {
+  user_id: string;
+  subject_id: string;
+  enabled_at: string;
+}
+
+export type SubscriptionRow = {
+  id: string;
+  user_id: string;
+  tier: 'free' | 'pro' | 'premium';
+  billing_period_start: string;
+  billing_period_end: string;
+  auto_renew: boolean;
+  stripe_subscription_id: string | null;
+  stripe_customer_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type UsageTrackingRow = {
+  id: string;
+  user_id: string;
+  billing_period_start: string;
+  billing_period_end: string;
+  quiz_count: number;
+  summary_count: number;
+  domain_count: number;
+  subject_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export type Database = {
   public: {
     Tables: {
-      profiles: Table<ProfileRow, "email" | "full_name" | "avatar_url" | "exam_date" | "study_goal" | "daily_goal_minutes" | "college_name" | "university_name" | "course" | "degree_program" | "year_of_study" | "semester" | "expected_graduation_year" | "onboarding_complete" | "study_preferences" | "ai_preferences" | "preferred_subjects", "created_at" | "updated_at">;
+      profiles: Table<ProfileRow, "email" | "full_name" | "avatar_url" | "exam_date" | "study_goal" | "daily_goal_minutes" | "college_name" | "university_name" | "course" | "degree_program" | "year_of_study" | "semester" | "expected_graduation_year" | "onboarding_complete" | "study_preferences" | "ai_preferences" | "preferred_subjects" | "theme" | "language" | "display_density" | "notification_email" | "notification_push" | "notification_in_app", "created_at" | "updated_at">;
       tasks: Table<TaskRow, "description" | "subject" | "status" | "priority" | "due_date" | "recurrence" | "recurrence_interval" | "reminder_minutes" | "completed_at", "id" | "created_at" | "updated_at">;
       notes: Table<NoteRow, "subject" | "topic" | "file_path" | "file_type" | "content_text" | "size_bytes", "id" | "created_at" | "updated_at">;
       summaries: Table<SummaryRow, "note_id" | "title" | "subject" | "source_text" | "model", "id" | "created_at">;
@@ -345,6 +419,12 @@ export type Database = {
       embedding_cache: Table<EmbeddingCacheRow, never, "created_at">;
       ai_usage: Table<AiUsageRow, "input_tokens" | "output_tokens" | "cost_usd" | "cache_hit", "id" | "created_at">;
       ai_response_cache: Table<AiResponseCacheRow, never, "created_at">;
+      domains: Table<DomainRow, "description" | "icon_name" | "is_predefined" | "created_by", "domain_id" | "created_at" | "updated_at">;
+      user_domains: Table<UserDomainRow, "selected_at", never>;
+      subjects: Table<SubjectRow, "description", "subject_id" | "created_at" | "updated_at">;
+      user_subjects: Table<UserSubjectRow, "enabled_at", never>;
+      subscriptions: Table<SubscriptionRow, "auto_renew" | "stripe_subscription_id" | "stripe_customer_id", "id" | "created_at" | "updated_at">;
+      usage_tracking: Table<UsageTrackingRow, "quiz_count" | "summary_count" | "domain_count" | "subject_count", "id" | "created_at" | "updated_at">;
     };
     Views: Record<string, never>;
     Functions: {

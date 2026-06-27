@@ -1,4 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <rect width="64" height="64" rx="14" fill="#0d9488"/>
-  <path d="M32 14a4 4 0 0 1 4 4v10h10a4 4 0 0 1 0 8H36v10a4 4 0 0 1-8 0V36H18a4 4 0 0 1 0-8h10V18a4 4 0 0 1 4-4Z" fill="#ffffff"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Book icon representing study -->
+  <rect x="20" y="25" width="60" height="50" rx="4" fill="url(#grad)"/>
+  <line x1="50" y1="25" x2="50" y2="75" stroke="white" stroke-width="2"/>
+  <path d="M 30 35 Q 35 33 40 35" stroke="white" stroke-width="1.5" fill="none"/>
+  <path d="M 30 42 Q 35 40 40 42" stroke="white" stroke-width="1.5" fill="none"/>
+  <path d="M 30 49 Q 35 47 40 49" stroke="white" stroke-width="1.5" fill="none"/>
+  <path d="M 60 35 Q 65 33 70 35" stroke="white" stroke-width="1.5" fill="none"/>
+  <path d="M 60 42 Q 65 40 70 42" stroke="white" stroke-width="1.5" fill="none"/>
+  <path d="M 60 49 Q 65 47 70 49" stroke="white" stroke-width="1.5" fill="none"/>
+  <!-- Star for achievement/buddy -->
+  <circle cx="75" cy="30" r="8" fill="#fbbf24"/>
+  <path d="M 75 24 L 76.5 28 L 81 28 L 77.5 31 L 79 35 L 75 32 L 71 35 L 72.5 31 L 69 28 L 73.5 28 Z" fill="white"/>
 </svg>
