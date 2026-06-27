@@ -53,14 +53,14 @@ export function SettingsTabs({ userEmail }: { userEmail?: string }) {
     return [...predefined, ...custom].filter(d => d?.domain_id && d?.name);
   }, [predefinedDomains, customDomains]);
 
+  const maxDomains = limits?.domains || 1;
+
   const handleDomainChange = useCallback(async (domainIds: string[]) => {
     try {
       if (!domainIds || domainIds.length === 0) {
         toast.error('You must select at least one domain');
         return;
       }
-
-      const maxDomains = limits?.domains || 1;
 
       if (domainIds.length > maxDomains) {
         setUpgradeModal({
@@ -79,7 +79,7 @@ export function SettingsTabs({ userEmail }: { userEmail?: string }) {
       console.error('[SettingsTabs] Domain change error:', error);
       toast.error('Failed to update domains');
     }
-  }, [limits, usage, selectDomains]);
+  }, [maxDomains, usage, selectDomains]);
 
   const handleSubjectToggle = useCallback(async (subjectId: string, enabled: boolean) => {
     try {
@@ -121,9 +121,9 @@ export function SettingsTabs({ userEmail }: { userEmail?: string }) {
               <CardHeader>
                 <CardTitle>Learning Domains</CardTitle>
                 <CardDescription>
-                  {limits?.domains === 1 
+                  {maxDomains === 1 
                     ? 'Select your primary learning domain. You can switch anytime. Upgrade to Pro for multiple domains!'
-                    : `Select up to ${limits?.domains || 1} domains you want to study.`
+                    : `Select up to ${maxDomains} domains you want to study.`
                   }
                 </CardDescription>
               </CardHeader>
@@ -135,7 +135,7 @@ export function SettingsTabs({ userEmail }: { userEmail?: string }) {
                     domains={allDomains}
                     selectedDomains={selectedDomainIds}
                     onSelectionChange={handleDomainChange}
-                    maxSelections={limits?.domains || 1}
+                    maxSelections={maxDomains}
                   />
                 )}
               </CardContent>
