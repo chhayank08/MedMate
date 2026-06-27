@@ -8,6 +8,7 @@ import { useSubscription } from "@/hooks/use-subscription";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Check, Sparkles, Crown, Zap, TrendingUp, Brain, FileText, Layers, X, PartyPopper, Loader2 } from "lucide-react";
 import { TIER_LIMITS, type SubscriptionTier } from "@/types/subscription.types";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 const PLAN_FEATURES = {
