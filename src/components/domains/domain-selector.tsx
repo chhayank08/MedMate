@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, type MouseEvent } from 'react';
 import { Domain } from '@/types/domain.types';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -30,7 +30,10 @@ export function DomainSelector({ domains, selectedDomains, onSelectionChange, ma
     [selectedDomains]
   );
 
-  const handleToggle = useCallback((domainId: string) => {
+  const handleToggle = useCallback((domainId: string, e: MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     try {
       const isSelected = validSelectedDomains.includes(domainId);
       const newSelection = isSelected 
@@ -39,7 +42,7 @@ export function DomainSelector({ domains, selectedDomains, onSelectionChange, ma
           ? [...validSelectedDomains, domainId] 
           : validSelectedDomains;
       
-      if (newSelection !== validSelectedDomains) {
+      if (JSON.stringify(newSelection) !== JSON.stringify(validSelectedDomains)) {
         onSelectionChange(newSelection);
       }
     } catch (error) {
@@ -61,14 +64,22 @@ export function DomainSelector({ domains, selectedDomains, onSelectionChange, ma
               isSelected && "border-primary bg-primary/5",
               isDisabled && "opacity-50 cursor-not-allowed"
             )}
-            onClick={() => !isDisabled && handleToggle(domain.domain_id)}
+            onClick={(e) => !isDisabled && handleToggle(domain.domain_id, e)}
+            role="button"
+            tabIndex={isDisabled ? -1 : 0}
+            aria-pressed={isSelected}
+            aria-disabled={isDisabled}
           >
             <div className="flex items-start justify-between">
-              <div>
+              <div className="flex-1">
                 <h3 className="font-semibold">{domain.name || 'Unnamed Domain'}</h3>
                 {domain.description && <p className="text-sm text-muted-foreground mt-1">{domain.description}</p>}
               </div>
-              {isSelected && <Badge><Check className="h-3 w-3" /></Badge>}
+              {isSelected && (
+                <Badge variant="default" className="shrink-0">
+                  <Check className="h-3 w-3" />
+                </Badge>
+              )}
             </div>
           </Card>
         );
