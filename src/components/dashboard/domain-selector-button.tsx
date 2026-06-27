@@ -83,27 +83,24 @@ export function DomainSelectorButton() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        render={(props) => (
-          <Button 
-            {...props}
-            variant="outline" 
-            size="sm" 
-            className="gap-2" 
-            disabled={isPending || isLoading}
-          >
-            {isLoading ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : (
-              <Layers className="size-4" />
-            )}
-            <span className="hidden sm:inline">Domains</span>
-            <Badge variant="secondary" className="ml-1">
-              {selectedCount}/{maxDomains}
-            </Badge>
-          </Button>
-        )}
-      />
+      <DropdownMenuTrigger asChild>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="gap-2" 
+          disabled={isPending || isLoading}
+        >
+          {isLoading ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <Layers className="size-4" />
+          )}
+          <span className="hidden sm:inline">Domains</span>
+          <Badge variant="secondary" className="ml-1">
+            {selectedCount}/{maxDomains}
+          </Badge>
+        </Button>
+      </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-64">
         <DropdownMenuLabel>Learning Domains</DropdownMenuLabel>
         <DropdownMenuSeparator />
