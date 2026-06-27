@@ -19,12 +19,10 @@ export function ScrollReveal({ children, delay = 0, className = '' }: ScrollReve
   const opacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 1, 1, 0.3]);
   const scale = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0.95, 1, 1, 0.98]);
   const y = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [50, 0, 0, -30]);
-  const blur = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [10, 0, 0, 3]);
 
   const smoothOpacity = useSpring(opacity, { stiffness: 100, damping: 30 });
   const smoothScale = useSpring(scale, { stiffness: 100, damping: 30 });
   const smoothY = useSpring(y, { stiffness: 100, damping: 30 });
-  const smoothBlur = useSpring(blur, { stiffness: 100, damping: 30 });
 
   return (
     <motion.div
@@ -33,7 +31,6 @@ export function ScrollReveal({ children, delay = 0, className = '' }: ScrollReve
         opacity: smoothOpacity,
         scale: smoothScale,
         y: smoothY,
-        filter: smoothBlur.to((v) => `blur(${v}px)`),
       }}
       transition={{ delay }}
       className={className}
