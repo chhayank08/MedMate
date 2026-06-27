@@ -210,12 +210,12 @@ export function QuizGenerator() {
               <SubjectCombobox
                 value=""
                 onChange={(v) => addSubject(v)}
-                placeholder="Add subjects — e.g. Cardiology, Anatomy…"
+                placeholder="Add subjects — e.g. Physics, Marketing, Data Structures…"
                 clearAfterSelect
               />
               <Textarea
                 rows={2}
-                placeholder="Custom topics (optional) — e.g. ACE inhibitor side effects, Loop of Henle"
+                placeholder="Custom topics (optional) — e.g. Specific concepts, theories, or areas to focus on"
                 value={customTopics}
                 onChange={(e) => setCustomTopics(e.target.value)}
               />

@@ -5,7 +5,7 @@ import { SubscriptionPlans } from "@/components/subscription/subscription-plans"
 
 export const metadata: Metadata = { 
   title: "Subscription",
-  description: "Choose the perfect plan for your study needs"
+  description: "Choose the perfect plan to supercharge your learning journey"
 };
 
 export default async function SubscriptionPage() {
@@ -18,7 +18,7 @@ export default async function SubscriptionPage() {
     <div className="mx-auto max-w-7xl space-y-6">
       <PageHeader 
         title="Subscription Plans" 
-        description="Choose the perfect plan for your study needs. Upgrade anytime, cancel anytime." 
+        description="Unlock your full learning potential. Upgrade anytime, cancel anytime." 
       />
       <SubscriptionPlans userId={user?.id} />
     </div>

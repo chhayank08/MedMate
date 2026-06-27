@@ -9,7 +9,7 @@ export default function NewQuizPage() {
     <div className="mx-auto max-w-2xl space-y-6">
       <PageHeader
         title="AI Quiz Generator"
-        description="Generate board-style questions from your notes and test your recall."
+        description="Generate intelligent questions from your study materials and test your knowledge."
       />
       <QuizGenerator />
     </div>

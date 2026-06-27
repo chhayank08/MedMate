@@ -53,7 +53,7 @@ export default async function DashboardPage() {
           {greeting()}{firstName ? `, ${firstName}` : ""} 👋
         </h1>
         <p className="text-sm text-muted-foreground">
-          Here&apos;s your study snapshot for today.
+          Here&apos;s your learning snapshot for today.
         </p>
       </div>
 

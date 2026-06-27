@@ -1,7 +1,7 @@
 {
   "name": "PrepBud",
   "short_name": "PrepBud",
-  "description": "AI-powered study coach for medical students.",
+  "description": "AI-powered study companion for personalized learning across any domain.",
   "start_url": "/dashboard",
   "display": "standalone",
   "background_color": "#0e1620",

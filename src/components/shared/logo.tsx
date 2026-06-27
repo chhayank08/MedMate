@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Stethoscope } from "lucide-react";
+import { GraduationCap, Sparkles } from "lucide-react";
 
 export function Logo({
   className,
@@ -14,15 +14,15 @@ export function Logo({
     <span className="flex items-center gap-2">
       <span
         className={cn(
-          "flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm",
+          "flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-chart-2 text-primary-foreground shadow-sm",
           className,
         )}
       >
-        <Stethoscope className="size-5" />
+        <GraduationCap className="size-5" />
       </span>
       {showText && (
         <span className={cn("text-lg font-semibold tracking-tight", textClassName)}>
-          MedMate<span className="text-primary"> AI</span>
+          Prep<span className="text-primary">Bud</span>
         </span>
       )}
     </span>

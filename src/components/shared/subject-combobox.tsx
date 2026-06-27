@@ -3,9 +3,20 @@
 import { useEffect, useRef, useState } from "react";
 import { Check, ChevronDown, Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { MEDICAL_SUBJECTS } from "@/lib/constants";
+import { DOMAIN_SUBJECTS } from "@/lib/constants";
 
-const STORAGE_KEY = "medmate:custom-subjects";
+const STORAGE_KEY = "prepbud:custom-subjects";
+const DOMAIN_KEY = "prepbud:active-domain";
+
+function getActiveSubjects(): readonly string[] {
+  if (typeof window === "undefined") return DOMAIN_SUBJECTS.medical;
+  try {
+    const domain = localStorage.getItem(DOMAIN_KEY) || "medical";
+    return DOMAIN_SUBJECTS[domain as keyof typeof DOMAIN_SUBJECTS] || DOMAIN_SUBJECTS.medical;
+  } catch {
+    return DOMAIN_SUBJECTS.medical;
+  }
+}
 
 function loadCustomSubjects(): string[] {
   if (typeof window === "undefined") return [];
@@ -39,7 +50,7 @@ interface SubjectComboboxProps {
 export function SubjectCombobox({
   value,
   onChange,
-  placeholder = "e.g. Cardiology",
+  placeholder = "e.g. Physics, Cardiology, Marketing",
   className,
   disabled,
   clearAfterSelect = false,
@@ -61,9 +72,10 @@ export function SubjectCombobox({
     }
   }, [value, clearAfterSelect]);
 
+  const activeSubjects = getActiveSubjects();
   const allSubjects = [
-    ...MEDICAL_SUBJECTS,
-    ...customSubjects.filter((s) => !MEDICAL_SUBJECTS.includes(s as never)),
+    ...activeSubjects,
+    ...customSubjects.filter((s) => !activeSubjects.includes(s as never)),
   ];
 
   const filtered = allSubjects.filter((s) =>

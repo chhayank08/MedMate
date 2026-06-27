@@ -9,7 +9,7 @@ export default function PlannerPage() {
     <div className="space-y-6">
       <PageHeader
         title="Study Planner"
-        description="Generate an exam-ready plan and keep topics fresh with spaced repetition."
+        description="Create personalized study plans and optimize retention with spaced repetition."
       />
       <PlannerView />
     </div>

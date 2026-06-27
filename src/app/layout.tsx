@@ -38,7 +38,7 @@ const rajdhani = Rajdhani({
 });
 
 export const metadata: Metadata = {
-  title: { default: `${APP_NAME} — AI Study Coach for Med Students`, template: `%s · ${APP_NAME}` },
+  title: { default: `${APP_NAME} — AI-Powered Study Companion`, template: `%s · ${APP_NAME}` },
   description: APP_DESCRIPTION,
   applicationName: APP_NAME,
   manifest: "/manifest.webmanifest",

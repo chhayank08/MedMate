@@ -60,7 +60,7 @@ export function DesktopSidebar() {
       </div>
       <SidebarNav />
       <div className="border-t px-5 py-4 text-xs text-muted-foreground">
-        Stay consistent. Small daily wins compound. 🩺
+        Stay consistent. Small wins compound daily. 📚
       </div>
     </aside>
   );

@@ -14,7 +14,7 @@ export default async function AnalyticsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Analytics"
-        description="Track your study time, quiz accuracy, weak subjects and consistency."
+        description="Track your learning progress, quiz performance, and identify areas for improvement."
       />
       <AnalyticsDashboard data={data} />
     </div>

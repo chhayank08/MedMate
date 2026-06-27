@@ -6,7 +6,7 @@
 
 export const APP_NAME = "PrepBud";
 export const APP_DESCRIPTION =
-  "Your AI-powered study coach for medical school — tasks, notes, quizzes, plans & analytics.";
+  "Your AI-powered study companion — intelligent quizzes, summaries, and personalized learning across any domain.";
 
 export const TASK_STATUS = ["pending", "in_progress", "completed"] as const;
 export type TaskStatus = (typeof TASK_STATUS)[number];
@@ -91,33 +91,36 @@ export const TASK_PRIORITY_META: Record<TaskPriority, { label: string; className
   high: { label: "High", className: "bg-destructive/15 text-destructive" },
 };
 
-/** Common medical-school subjects offered as quick suggestions. */
-export const MEDICAL_SUBJECTS = [
-  "Anatomy",
-  "Physiology",
-  "Biochemistry",
-  "Pathology",
-  "Pharmacology",
-  "Microbiology",
-  "Cardiology",
-  "Neuroanatomy",
-  "Neurology",
-  "Immunology",
-  "Histology",
-  "Embryology",
-  "Genetics",
-  "Hematology",
-  "Endocrinology",
-  "Respiratory",
-  "Gastroenterology",
-  "Nephrology",
-  "Obstetrics & Gynecology",
-  "Pediatrics",
-  "Surgery",
-  "Psychiatry",
-  "Community Medicine",
-  "Forensic Medicine",
-] as const;
+/** Domain-specific subject suggestions */
+export const DOMAIN_SUBJECTS: Record<string, readonly string[]> = {
+  medical: [
+    "Anatomy", "Physiology", "Biochemistry", "Pathology", "Pharmacology",
+    "Microbiology", "Cardiology", "Neurology", "Immunology", "Surgery"
+  ],
+  engineering: [
+    "Mechanical Engineering", "Electrical Engineering", "Civil Engineering",
+    "Thermodynamics", "Fluid Mechanics", "Materials Science", "Control Systems"
+  ],
+  computer_science: [
+    "Data Structures", "Algorithms", "Operating Systems", "Database Systems",
+    "Computer Networks", "Machine Learning", "Web Development", "Software Engineering"
+  ],
+  business: [
+    "Accounting", "Finance", "Marketing", "Economics", "Strategy",
+    "Operations Management", "Business Analytics", "Entrepreneurship"
+  ],
+  law: [
+    "Constitutional Law", "Criminal Law", "Contract Law", "Tort Law",
+    "Corporate Law", "International Law", "Property Law"
+  ],
+  science: [
+    "Physics", "Chemistry", "Biology", "Mathematics", "Astronomy",
+    "Environmental Science", "Geology", "Organic Chemistry"
+  ],
+} as const;
+
+/** Legacy medical subjects for backward compatibility */
+export const MEDICAL_SUBJECTS = DOMAIN_SUBJECTS.medical;
 
 /** Weak-subject thresholds used across analytics & coach insights. */
 export const WEAK_SUBJECT_ACCURACY_THRESHOLD = 65; // percent

@@ -136,7 +136,7 @@ export function AcademicProfileCard({ profile: initial }: AcademicProfileCardPro
         <CardContent>
           {isEmpty ? (
             <p className="text-sm text-muted-foreground">
-              Add your college, degree, and year so AI features can tailor content to your curriculum.{" "}
+              Add your institution, program, and year so AI features can personalize content to your curriculum.{" "}
               <button
                 type="button"
                 onClick={openDialog}
@@ -172,7 +172,7 @@ export function AcademicProfileCard({ profile: initial }: AcademicProfileCardPro
               <Label htmlFor="ap-college">College / Institution</Label>
               <Input
                 id="ap-college"
-                placeholder="e.g. AIIMS New Delhi"
+                placeholder="e.g. MIT, Stanford, IIT Delhi"
                 value={fields.college_name ?? ""}
                 onChange={(e) => set("college_name", e.target.value)}
               />
@@ -181,7 +181,7 @@ export function AcademicProfileCard({ profile: initial }: AcademicProfileCardPro
               <Label htmlFor="ap-university">University</Label>
               <Input
                 id="ap-university"
-                placeholder="e.g. Delhi University"
+                placeholder="e.g. MIT, Harvard University"
                 value={fields.university_name ?? ""}
                 onChange={(e) => set("university_name", e.target.value)}
               />
@@ -190,7 +190,7 @@ export function AcademicProfileCard({ profile: initial }: AcademicProfileCardPro
               <Label htmlFor="ap-degree">Degree Program</Label>
               <Input
                 id="ap-degree"
-                placeholder="e.g. MBBS"
+                placeholder="e.g. B.Tech, MBA, MBBS, LLB"
                 value={fields.degree_program ?? ""}
                 onChange={(e) => set("degree_program", e.target.value)}
               />
@@ -199,7 +199,7 @@ export function AcademicProfileCard({ profile: initial }: AcademicProfileCardPro
               <Label htmlFor="ap-course">Specialization / Course</Label>
               <Input
                 id="ap-course"
-                placeholder="e.g. Medicine & Surgery"
+                placeholder="e.g. Computer Science, Finance, Medicine"
                 value={fields.course ?? ""}
                 onChange={(e) => set("course", e.target.value)}
               />

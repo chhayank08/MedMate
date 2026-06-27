@@ -9,7 +9,7 @@ export default function NewSummaryPage() {
     <div className="space-y-6">
       <PageHeader
         title="AI Summary Generator"
-        description="Turn dense notes into quick summaries, revision notes, cheat sheets and more."
+        description="Transform your study materials into concise summaries, revision notes, flashcards and more."
       />
       <SummaryGenerator />
     </div>

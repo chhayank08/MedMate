@@ -175,7 +175,7 @@ export function SubscriptionPlans({ userId }: { userId?: string }) {
                 </div>
                 <p className="text-muted-foreground">
                   Thank you for your support! You have unlimited access to all premium features forever. 
-                  Enjoy 10 domains, unlimited subjects, 500 quizzes/month, 500 summaries/month, and all future updates at no additional cost.
+                  Enjoy multi-domain learning, unlimited subjects, 500 quizzes/month, 500 summaries/month, and all future updates.
                 </p>
               </div>
             </div>
@@ -239,7 +239,7 @@ export function SubscriptionPlans({ userId }: { userId?: string }) {
           tier="free"
           name="Free"
           price="$0/month"
-          description="Perfect for trying out PrepBud"
+          description="Perfect for exploring PrepBud"
           isCurrent={currentTier === 'free'}
           features={PLAN_FEATURES.free}
           onUpgrade={() => handleUpgrade('free')}
@@ -249,7 +249,7 @@ export function SubscriptionPlans({ userId }: { userId?: string }) {
           tier="pro"
           name="Pro"
           price="$9.99/month"
-          description="Best for serious students"
+          description="For dedicated learners"
           isCurrent={currentTier === 'pro'}
           isPopular={!isLifetime}
           features={PLAN_FEATURES.pro}
@@ -260,7 +260,7 @@ export function SubscriptionPlans({ userId }: { userId?: string }) {
           tier="lifetime"
           name="Lifetime"
           price="$199"
-          description="Pay once, use forever"
+          description="Unlimited learning forever"
           isCurrent={isLifetime}
           features={PLAN_FEATURES.lifetime}
           onUpgrade={() => handleUpgrade('lifetime')}

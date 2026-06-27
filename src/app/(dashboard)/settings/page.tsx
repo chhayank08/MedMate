@@ -13,7 +13,7 @@ export default async function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <PageHeader title="Settings" description="Manage your profile, preferences and account." />
+      <PageHeader title="Settings" description="Personalize your learning experience and manage your account." />
       <SettingsTabs userEmail={user?.email} />
     </div>
   );
