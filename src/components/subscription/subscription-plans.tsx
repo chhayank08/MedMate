@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useSubscription } from "@/hooks/use-subscription";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Check, Sparkles, Crown, Zap, TrendingUp, Brain, FileText, Layers, X } from "lucide-react";
+import { Check, Sparkles, Crown, Zap, TrendingUp, Brain, FileText, Layers, X, PartyPopper } from "lucide-react";
 import { TIER_LIMITS, type SubscriptionTier } from "@/types/subscription.types";
 import { cn } from "@/lib/utils";
 
@@ -149,6 +149,7 @@ export function SubscriptionPlans({ userId }: { userId?: string }) {
   }
 
   const currentTier = subscription?.tier || 'free';
+  const isLifetime = currentTier === 'premium';
 
   const handleUpgrade = (tier: string) => {
     console.log('Upgrade to:', tier);
@@ -157,12 +158,42 @@ export function SubscriptionPlans({ userId }: { userId?: string }) {
 
   return (
     <div className="space-y-8">
+      {/* Lifetime Subscriber Celebration Banner */}
+      {isLifetime && (
+        <Card className="border-2 border-yellow-500 bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-950/20 dark:to-amber-950/20">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-4">
+              <div className="flex size-16 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 shadow-lg">
+                <Crown className="size-8 text-white" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-2xl font-bold bg-gradient-to-r from-yellow-600 to-amber-600 bg-clip-text text-transparent">
+                    Congratulations! You're a Lifetime Member
+                  </h3>
+                  <PartyPopper className="size-6 text-yellow-500" />
+                </div>
+                <p className="text-muted-foreground">
+                  Thank you for your support! You have unlimited access to all premium features forever. 
+                  Enjoy 10 domains, unlimited subjects, 500 quizzes/month, 500 summaries/month, and all future updates at no additional cost.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Current Usage Stats */}
       {usage && limits && (
         <Card>
           <CardHeader>
-            <CardTitle>Current Usage</CardTitle>
-            <CardDescription>Your usage for the current billing period</CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              Current Usage
+              {isLifetime && <Crown className="size-5 text-yellow-500" />}
+            </CardTitle>
+            <CardDescription>
+              {isLifetime ? 'Your lifetime membership usage' : 'Your usage for the current billing period'}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -171,15 +202,15 @@ export function SubscriptionPlans({ userId }: { userId?: string }) {
                   <span className="font-medium">Domains</span>
                   <span className="text-muted-foreground">{usage.domains.current} / {usage.domains.limit}</span>
                 </div>
-                <Progress value={(usage.domains.current / usage.domains.limit) * 100} />
+                <Progress value={(usage.domains.current / usage.domains.limit) * 100} className={isLifetime ? '[&>div]:bg-gradient-to-r [&>div]:from-yellow-400 [&>div]:to-amber-500' : ''} />
               </div>
 
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="font-medium">Subjects</span>
-                  <span className="text-muted-foreground">{usage.subjects.current} / {usage.subjects.limit}</span>
+                  <span className="text-muted-foreground">{usage.subjects.current} / {usage.subjects.limit === 10000 ? '∞' : usage.subjects.limit}</span>
                 </div>
-                <Progress value={(usage.subjects.current / usage.subjects.limit) * 100} />
+                <Progress value={usage.subjects.limit === 10000 ? 0 : (usage.subjects.current / usage.subjects.limit) * 100} className={isLifetime ? '[&>div]:bg-gradient-to-r [&>div]:from-yellow-400 [&>div]:to-amber-500' : ''} />
               </div>
 
               <div className="space-y-2">
@@ -187,7 +218,7 @@ export function SubscriptionPlans({ userId }: { userId?: string }) {
                   <span className="font-medium">Quizzes</span>
                   <span className="text-muted-foreground">{usage.quizzes.current} / {usage.quizzes.limit}</span>
                 </div>
-                <Progress value={(usage.quizzes.current / usage.quizzes.limit) * 100} />
+                <Progress value={(usage.quizzes.current / usage.quizzes.limit) * 100} className={isLifetime ? '[&>div]:bg-gradient-to-r [&>div]:from-yellow-400 [&>div]:to-amber-500' : ''} />
               </div>
 
               <div className="space-y-2">
@@ -195,7 +226,7 @@ export function SubscriptionPlans({ userId }: { userId?: string }) {
                   <span className="font-medium">Summaries</span>
                   <span className="text-muted-foreground">{usage.summaries.current} / {usage.summaries.limit}</span>
                 </div>
-                <Progress value={(usage.summaries.current / usage.summaries.limit) * 100} />
+                <Progress value={(usage.summaries.current / usage.summaries.limit) * 100} className={isLifetime ? '[&>div]:bg-gradient-to-r [&>div]:from-yellow-400 [&>div]:to-amber-500' : ''} />
               </div>
             </div>
           </CardContent>
@@ -220,7 +251,7 @@ export function SubscriptionPlans({ userId }: { userId?: string }) {
           price="$9.99/month"
           description="Best for serious students"
           isCurrent={currentTier === 'pro'}
-          isPopular={true}
+          isPopular={!isLifetime}
           features={PLAN_FEATURES.pro}
           onUpgrade={() => handleUpgrade('pro')}
         />
@@ -230,7 +261,7 @@ export function SubscriptionPlans({ userId }: { userId?: string }) {
           name="Lifetime"
           price="$199"
           description="Pay once, use forever"
-          isCurrent={currentTier === 'premium'}
+          isCurrent={isLifetime}
           features={PLAN_FEATURES.lifetime}
           onUpgrade={() => handleUpgrade('lifetime')}
         />
