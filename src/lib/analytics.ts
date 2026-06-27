@@ -34,7 +34,10 @@ export async function refreshSubjectAnalytics(
     {
       user_id: userId,
       subject,
+      domain_id: null,
+      subject_id: null,
       accuracy: avg,
+      study_minutes: 0,
       quiz_count: accs.length,
       last_studied: new Date().toISOString(),
       is_weak: avg != null && avg < WEAK_SUBJECT_ACCURACY_THRESHOLD,

@@ -443,6 +443,21 @@ export type Database = {
           similarity: number;
         }[];
       };
+      increment_usage_counter: {
+        Args: {
+          p_user_id: string;
+          p_counter_type: string;
+        };
+        Returns: void;
+      };
+      check_tier_limits: {
+        Args: {
+          p_user_id: string;
+          p_resource_type: string;
+          p_new_count: number;
+        };
+        Returns: boolean;
+      };
     };
     Enums: {
       task_status: TaskStatus;

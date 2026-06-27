@@ -4,7 +4,17 @@
 // Requirements: 6.1, 6.2, 6.3, 6.4, 15.1, 15.2, 15.3
 // ============================================================================
 
-import { SummaryTypeEnum } from './database.types';
+type SummaryTypeEnum =
+  | "quick"
+  | "revision"
+  | "cheat_sheet"
+  | "key_concepts"
+  | "definitions"
+  | "flashcards"
+  | "high_yield_points"
+  | "exam_notes"
+  | "one_page_summary"
+  | "active_recall_notes";
 
 // ─── Subscription Tier Types ────────────────────────────────────────────────
 export type SubscriptionTier = 'free' | 'pro' | 'premium';

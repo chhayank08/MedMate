@@ -43,6 +43,8 @@ export function useSaveSummary() {
           type: input.type,
           title: input.title,
           subject: input.subject || null,
+          domain_id: null,
+          subject_id: null,
           source_text: input.sourceText,
           content: input.content,
           model: process.env.NEXT_PUBLIC_OPENROUTER_MODEL ?? null,
