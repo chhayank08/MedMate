@@ -74,8 +74,8 @@ export async function POST(request: Request) {
           success: false, 
           error: { 
             code: 'VALIDATION_ERROR',
-            message: validation.error.errors[0].message,
-            details: validation.error.errors,
+            message: validation.error.issues[0]?.message || 'Invalid input',
+            details: validation.error.issues,
             retryable: true
           } 
         },

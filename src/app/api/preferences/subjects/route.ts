@@ -31,7 +31,7 @@ export async function POST(request: Request) {
           error: { 
             code: 'VALIDATION_ERROR',
             message: 'Invalid subject selection',
-            details: validation.error.errors,
+            details: validation.error.issues,
             retryable: true
           } 
         },

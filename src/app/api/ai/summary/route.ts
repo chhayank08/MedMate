@@ -53,8 +53,20 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { data: userSubjects } = await supabase.from('user_subjects').select('subject_id, subjects(name, domain_id)');
-    const enabledSubjects = (userSubjects || []).map(us => us.subjects);
+    const { data: userSubjects } = await supabase
+      .from('user_subjects')
+      .select('subject_id, subjects!inner(subject_id, name, domain_id)');
+    
+    type SubjectData = { subject_id: string; name: string; domain_id: string };
+    const enabledSubjects: SubjectData[] = [];
+    
+    if (userSubjects) {
+      for (const us of userSubjects) {
+        if (us.subjects && typeof us.subjects === 'object' && 'subject_id' in us.subjects) {
+          enabledSubjects.push(us.subjects as unknown as SubjectData);
+        }
+      }
+    }
     
     if (enabledSubjects.length === 0) {
       return NextResponse.json(

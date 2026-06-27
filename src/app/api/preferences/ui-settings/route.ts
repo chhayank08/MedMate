@@ -35,7 +35,7 @@ export async function POST(request: Request) {
           error: { 
             code: 'VALIDATION_ERROR',
             message: 'Invalid UI settings',
-            details: validation.error.errors,
+            details: validation.error.issues,
             retryable: true
           } 
         },
@@ -45,8 +45,15 @@ export async function POST(request: Request) {
 
     const { theme, language, displayDensity, notifications } = validation.data;
 
-    // Build update object
-    const updates: Record<string, any> = {};
+    // Build update object with correct types
+    const updates: Partial<{
+      theme: 'light' | 'dark' | 'system';
+      language: 'en' | 'es' | 'fr' | 'de';
+      display_density: 'compact' | 'standard' | 'comfortable';
+      notification_email: boolean;
+      notification_push: boolean;
+      notification_in_app: boolean;
+    }> = {};
     if (theme) updates.theme = theme;
     if (language) updates.language = language;
     if (displayDensity) updates.display_density = displayDensity;
