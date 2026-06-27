@@ -61,7 +61,7 @@ export async function GET() {
     // Load subjects with domain context and enabled status
     const domainIds = domains.map(d => (d as { domain_id: string }).domain_id);
     
-    let allSubjects = [];
+    let allSubjects: any[] = [];
     if (domainIds.length > 0) {
       const { data: subjectsData, error: subjectsError } = await supabase
         .from('subjects')
