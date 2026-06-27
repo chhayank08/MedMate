@@ -12,6 +12,7 @@ import { AppearanceForm } from "@/components/settings/appearance-form";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useProfile } from "@/hooks/use-profile";
 import { DomainSelector } from "@/components/domains/domain-selector";
+import { DomainSwitchInfo } from "@/components/domains/domain-switch-info";
 import { SubjectTogglePanel } from "@/components/subjects/subject-toggle-panel";
 import { useDomains } from "@/hooks/use-domains";
 import { useSubscription } from "@/hooks/use-subscription";
@@ -59,18 +60,21 @@ export function SettingsTabs({ userEmail }: { userEmail?: string }) {
         return;
       }
 
-      if (limits && domainIds.length > limits.domains) {
+      const maxDomains = limits?.domains || 1;
+
+      if (domainIds.length > maxDomains) {
         setUpgradeModal({
           isOpen: true,
           limitType: 'domains',
           currentUsage: usage?.domains.current || 0,
-          currentLimit: limits.domains,
-          recommendedTier: limits.domains === 1 ? 'pro' : 'premium'
+          currentLimit: maxDomains,
+          recommendedTier: maxDomains === 1 ? 'pro' : 'premium'
         });
         return;
       }
       
       await selectDomains(domainIds);
+      toast.success(maxDomains === 1 ? 'Domain switched successfully' : 'Domains updated successfully');
     } catch (error) {
       console.error('[SettingsTabs] Domain change error:', error);
       toast.error('Failed to update domains');
@@ -111,11 +115,16 @@ export function SettingsTabs({ userEmail }: { userEmail?: string }) {
 
         <TabsContent value="domains" className="space-y-6">
           <ErrorBoundary>
+            <DomainSwitchInfo isFreeUser={maxDomains === 1} />
+            
             <Card>
               <CardHeader>
                 <CardTitle>Learning Domains</CardTitle>
                 <CardDescription>
-                  Select the domains you want to study. Your plan allows {limits?.domains || 1} domain(s).
+                  {limits?.domains === 1 
+                    ? 'Select your primary learning domain. You can switch anytime. Upgrade to Pro for multiple domains!'
+                    : `Select up to ${limits?.domains || 1} domains you want to study.`
+                  }
                 </CardDescription>
               </CardHeader>
               <CardContent>

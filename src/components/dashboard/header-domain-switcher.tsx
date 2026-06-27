@@ -63,6 +63,7 @@ export function HeaderDomainSwitcher() {
 
     try {
       const isSelected = selectedDomainIds.includes(domainId);
+      const maxDomains = limits?.domains || 1;
       let newSelection: string[];
 
       if (isSelected) {
@@ -73,23 +74,29 @@ export function HeaderDomainSwitcher() {
         }
         newSelection = selectedDomainIds.filter(id => id !== domainId);
       } else {
-        const maxDomains = limits?.domains || 1;
-        if (selectedDomainIds.length >= maxDomains) {
-          toast.error(`Domain limit reached (${maxDomains}). Upgrade to add more.`);
-          return;
+        // For free users (maxDomains === 1), replace the current domain
+        if (maxDomains === 1) {
+          newSelection = [domainId];
+        } else {
+          // For paid users, check limit and add
+          if (selectedDomainIds.length >= maxDomains) {
+            toast.error(`Domain limit reached (${maxDomains}). Upgrade to add more.`);
+            return;
+          }
+          newSelection = [...selectedDomainIds, domainId];
         }
-        newSelection = [...selectedDomainIds, domainId];
       }
 
       await selectDomains(newSelection);
+      const domainName = allDomains.find(d => d.domain_id === domainId)?.name;
       setOpen(false);
       setSearch("");
-      toast.success("Domains updated");
+      toast.success(`Switched to ${domainName || 'selected domain'}`);
     } catch (error) {
       console.error("[HeaderDomainSwitcher] Selection error:", error);
       toast.error("Failed to update domains");
     }
-  }, [mounted, selectedDomainIds, limits, selectDomains]);
+  }, [mounted, selectedDomainIds, limits, selectDomains, allDomains]);
 
   const isLoading = domainsLoading || settingsLoading || !mounted || !isInitialized;
   const maxDomains = limits?.domains || 1;
@@ -193,7 +200,11 @@ export function HeaderDomainSwitcher() {
           </div>
         </ScrollArea>
 
-        {maxDomains > 1 && (
+        {maxDomains === 1 ? (
+          <div className="border-t p-2 text-xs text-muted-foreground">
+            💡 Free plan: Switch between domains anytime. Upgrade for multiple domains!
+          </div>
+        ) : (
           <div className="border-t p-2 text-xs text-muted-foreground">
             💡 Tip: Select multiple domains to customize your learning experience
           </div>

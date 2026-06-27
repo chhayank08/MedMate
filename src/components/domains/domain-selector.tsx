@@ -49,11 +49,19 @@ export function DomainSelector({ domains, selectedDomains, onSelectionChange, ma
       }
 
       const isSelected = validSelectedDomains.includes(domainId);
-      const newSelection = isSelected 
-        ? validSelectedDomains.filter(id => id !== domainId)
-        : validSelectedDomains.length < maxSelections 
-          ? [...validSelectedDomains, domainId] 
-          : validSelectedDomains;
+      let newSelection: string[];
+      
+      if (maxSelections === 1) {
+        // Single selection mode (free users): always replace
+        newSelection = [domainId];
+      } else {
+        // Multi-selection mode (paid users): toggle
+        newSelection = isSelected 
+          ? validSelectedDomains.filter(id => id !== domainId)
+          : validSelectedDomains.length < maxSelections 
+            ? [...validSelectedDomains, domainId] 
+            : validSelectedDomains;
+      }
       
       if (JSON.stringify(newSelection.sort()) !== JSON.stringify(validSelectedDomains.sort())) {
         onSelectionChange(newSelection);
@@ -77,7 +85,7 @@ export function DomainSelector({ domains, selectedDomains, onSelectionChange, ma
       {validDomains.map(domain => {
         try {
           const isSelected = validSelectedDomains.includes(domain.domain_id);
-          const isDisabled = !isSelected && validSelectedDomains.length >= maxSelections;
+          const isDisabled = maxSelections > 1 && !isSelected && validSelectedDomains.length >= maxSelections;
 
           return (
             <Card
