@@ -3,10 +3,8 @@
 import { 
   Brain, 
   CalendarRange, 
-  Bell, 
   LineChart, 
   Sparkles, 
-  ListChecks,
   Zap,
   Target
 } from 'lucide-react';
