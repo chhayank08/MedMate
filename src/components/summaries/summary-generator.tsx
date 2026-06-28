@@ -18,6 +18,7 @@ import { HKLoader, HK_LOADING_MESSAGES } from "@/components/shared/hk-loader";
 import { useBatActive } from "@/components/shared/bat-decorations";
 import { BatLoader, BAT_LOADING_MESSAGES } from "@/components/shared/bat-loader";
 import { useSaveSummary } from "@/hooks/use-summaries";
+import { useDomainContext } from "@/hooks/use-domain-context";
 import { formatAPIError, formatStreamError } from "@/lib/error-formatter";
 import {
   SUMMARY_TYPE,
@@ -66,6 +67,7 @@ function SubjectTags({
 }
 
 export function SummaryGenerator() {
+  const { domainConfig } = useDomainContext();
   const [mode, setMode] = useState<InputMode>("paste");
   const [type, setType] = useState<SummaryType>("revision");
   const [subjects, setSubjects] = useState<string[]>([]);
@@ -83,6 +85,13 @@ export function SummaryGenerator() {
   const saveSummary = useSaveSummary();
   const savedRef = useRef(false);
   const abortRef = useRef<AbortController | null>(null);
+  
+  // Get domain-specific placeholders
+  const placeholders = domainConfig?.placeholders || {
+    quizTopic: "ACE inhibitor side effects, Loop of Henle",
+    summaryTopic: "Cardiac physiology",
+    taskExample: "Review Pathology notes"
+  };
 
   function addSubject(value: string) {
     const trimmed = value.trim();
@@ -275,12 +284,12 @@ export function SummaryGenerator() {
                 <SubjectCombobox
                   value=""
                   onChange={(v) => addSubject(v)}
-                  placeholder="Add subjects — e.g. Nephrology, Pharmacology…"
+                  placeholder={`Add subjects — e.g. ${placeholders.quizTopic}`}
                   clearAfterSelect
                 />
                 <Textarea
                   rows={2}
-                  placeholder="Custom topics (optional) — e.g. Renin-angiotensin system, Drug classes"
+                  placeholder={`Custom topics (optional) — e.g. ${placeholders.summaryTopic}`}
                   value={customTopics}
                   onChange={(e) => setCustomTopics(e.target.value)}
                 />
@@ -293,7 +302,7 @@ export function SummaryGenerator() {
               <div className="grid gap-1">
                 <Textarea
                   rows={12}
-                  placeholder="Paste lecture notes, a chapter, or describe a topic to summarize…"
+                  placeholder={`Paste lecture notes, a chapter, or describe ${placeholders.summaryTopic} to summarize…`}
                   value={pasteText}
                   onChange={(e) => setPasteText(e.target.value)}
                 />

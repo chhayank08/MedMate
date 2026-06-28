@@ -18,6 +18,7 @@ import { useHKActive } from "@/components/shared/hk-decorations";
 import { HKLoader, HK_LOADING_MESSAGES } from "@/components/shared/hk-loader";
 import { useBatActive } from "@/components/shared/bat-decorations";
 import { BatLoader, BAT_LOADING_MESSAGES } from "@/components/shared/bat-loader";
+import { useDomainContext } from "@/hooks/use-domain-context";
 import {
   DIFFICULTY,
   QUIZ_LENGTHS,
@@ -77,6 +78,7 @@ function SubjectTags({
 
 export function QuizGenerator() {
   const router = useRouter();
+  const { domainConfig, isReady } = useDomainContext();
   const [mode, setMode] = useState<InputMode>("subject");
   const [title, setTitle] = useState("");
   const [subjects, setSubjects] = useState<string[]>([]);
@@ -93,6 +95,13 @@ export function QuizGenerator() {
   const [loading, setLoading] = useState(false);
   const hk = useHKActive();
   const bat = useBatActive();
+  
+  // Get domain-specific placeholders
+  const placeholders = domainConfig?.placeholders || {
+    quizTopic: "ACE inhibitor side effects, Loop of Henle",
+    summaryTopic: "Cardiac physiology",
+    taskExample: "Review Pathology notes"
+  };
 
   function addSubject(value: string) {
     const trimmed = value.trim();
@@ -210,7 +219,7 @@ export function QuizGenerator() {
               <SubjectCombobox
                 value=""
                 onChange={(v) => addSubject(v)}
-                placeholder="Add subjects — e.g. Physics, Marketing, Data Structures…"
+                placeholder={`Add subjects — e.g. ${placeholders.quizTopic}`}
                 clearAfterSelect
               />
               <Textarea
@@ -246,7 +255,12 @@ export function QuizGenerator() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="grid gap-2">
             <Label htmlFor="quiz-title">Title (optional)</Label>
-            <Input id="quiz-title" placeholder="Cardiology pop quiz" value={title} onChange={(e) => setTitle(e.target.value)} />
+            <Input 
+              id="quiz-title" 
+              placeholder={placeholders.taskExample} 
+              value={title} 
+              onChange={(e) => setTitle(e.target.value)} 
+            />
           </div>
           {mode !== "subject" && (
             <div className="grid gap-2">

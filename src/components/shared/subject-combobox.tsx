@@ -4,18 +4,16 @@ import { useEffect, useRef, useState } from "react";
 import { Check, ChevronDown, Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DOMAIN_SUBJECTS } from "@/lib/constants";
+import { useActiveDomain } from "@/lib/stores/global-settings-store";
 
 const STORAGE_KEY = "prepbud:custom-subjects";
-const DOMAIN_KEY = "prepbud:active-domain";
 
-function getActiveSubjects(): readonly string[] {
-  if (typeof window === "undefined") return DOMAIN_SUBJECTS.medical;
-  try {
-    const domain = localStorage.getItem(DOMAIN_KEY) || "medical";
-    return DOMAIN_SUBJECTS[domain as keyof typeof DOMAIN_SUBJECTS] || DOMAIN_SUBJECTS.medical;
-  } catch {
-    return DOMAIN_SUBJECTS.medical;
-  }
+function getActiveSubjects(domainName?: string): readonly string[] {
+  if (!domainName) return DOMAIN_SUBJECTS.medical;
+  
+  // Convert domain name to key format (e.g., "Computer Science" -> "computer_science")
+  const domainKey = domainName.toLowerCase().replace(/\s+/g, '_');
+  return DOMAIN_SUBJECTS[domainKey as keyof typeof DOMAIN_SUBJECTS] || DOMAIN_SUBJECTS.medical;
 }
 
 function loadCustomSubjects(): string[] {
@@ -60,10 +58,21 @@ export function SubjectCombobox({
   const [customSubjects, setCustomSubjects] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  
+  // Subscribe to active domain from global store (reactive)
+  const activeDomain = useActiveDomain();
+  const activeSubjects = getActiveSubjects(activeDomain?.name);
 
   useEffect(() => {
     setCustomSubjects(loadCustomSubjects());
   }, []);
+  
+  // Listen for domain changes and reset query if needed
+  useEffect(() => {
+    if (clearAfterSelect) {
+      setQuery("");
+    }
+  }, [activeDomain, clearAfterSelect]);
 
   // For single-select mode, keep query in sync with external value.
   useEffect(() => {
@@ -72,7 +81,6 @@ export function SubjectCombobox({
     }
   }, [value, clearAfterSelect]);
 
-  const activeSubjects = getActiveSubjects();
   const allSubjects = [
     ...activeSubjects,
     ...customSubjects.filter((s) => !activeSubjects.includes(s as never)),
