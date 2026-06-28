@@ -1,69 +1,105 @@
 // ============================================================================
-// Unified Domain Context Hook - STABLE PRIMITIVES ONLY
-// Provides stable, primitive-based selectors to prevent render loops
+// Unified Domain Context Hook
+// Provides a single interface for domain state management across the app
 // ============================================================================
 
 import { useGlobalSettings, useActiveDomain, useActiveDomains } from '@/lib/stores/global-settings-store';
 import { getDomainConfig, type DomainKey } from '@/lib/domain-config';
-import { useMemo, useCallback } from 'react';
+import { useMemo, useEffect, useCallback } from 'react';
 
 /**
- * STABLE primitive-only hook for domain context
- * Returns ONLY stable primitives and memoized references
- * NO unstable object creation in render
+ * Comprehensive hook for accessing domain context throughout the application
+ * This hook provides:
+ * - Current active domain (primary selection)
+ * - All active domains (for multi-domain users)
+ * - Domain configuration (colors, icons, placeholders)
+ * - Domain switching functionality
+ * - Loading and initialization states
+ * - Automatic refresh on domain changes
  */
-export function useDomainContext() {
-  // STABLE PRIMITIVES ONLY - no object destructuring
+export function useDomainContext(options?: { refreshOnChange?: boolean }) {
   const activeDomain = useActiveDomain();
+  const activeDomains = useActiveDomains();
+  const selectDomains = useGlobalSettings(state => state.selectDomains);
   const isLoading = useGlobalSettings(state => state.isLoading);
   const isInitialized = useGlobalSettings(state => state.isInitialized);
-  const selectDomains = useGlobalSettings(state => state.selectDomains);
+  const selectedDomainIds = useGlobalSettings(state => state.selectedDomainIds);
   
-  // Derive stable primitive values ONLY
-  const domainId = activeDomain?.domain_id ?? null;
-  const domainName = activeDomain?.name ?? 'Medical';
-  const isReady = isInitialized && !isLoading;
+  // CRITICAL: Use only primitive domain_id for memoization stability
+  const activeDomainId = activeDomain?.domain_id;
+  const activeDomainName = activeDomain?.name;
   
-  // STABLE memoized config using ONLY primitive dependencies
+  // Get domain configuration for the active domain - STABLE memoization using only primitives
   const domainConfig = useMemo(() => {
-    if (!domainId) return null;
-    const domainKey = domainName.toLowerCase().replace(/\s+/g, '_') as DomainKey;
+    if (!activeDomainId || !activeDomainName) return null;
+    const domainKey = activeDomainName.toLowerCase().replace(/\s+/g, '_') as DomainKey;
     return getDomainConfig(domainKey);
-  }, [domainId, domainName]); // ONLY primitives
+  }, [activeDomainId, activeDomainName]);
+
+  // Listen for domain changes - stable effect
+  const shouldRefresh = options?.refreshOnChange ?? false;
+  useEffect(() => {
+    if (!shouldRefresh) return;
+    
+    const handleDomainChange = (event: CustomEvent) => {
+      console.log('[useDomainContext] Domain changed, refreshing...', event.detail);
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('domain-context-refreshed'));
+      }
+    };
+    
+    if (typeof window !== 'undefined') {
+      window.addEventListener('domain-changed' as any, handleDomainChange);
+      window.addEventListener('global-domain-updated' as any, handleDomainChange);
+      
+      return () => {
+        window.removeEventListener('domain-changed' as any, handleDomainChange);
+        window.removeEventListener('global-domain-updated' as any, handleDomainChange);
+      };
+    }
+  }, [shouldRefresh]);
+
+  // Switch to a single domain (replaces current selection) - wrapped in useCallback
+  const switchDomain = useCallback(async (domainId: string) => {
+    await selectDomains([domainId]);
+  }, [selectDomains]);
+
+  // Toggle a domain in multi-domain mode - wrapped in useCallback
+  const toggleDomain = useCallback(async (domainId: string) => {
+    const isSelected = selectedDomainIds.includes(domainId);
+    
+    if (isSelected) {
+      // Remove domain (keep at least one)
+      if (selectedDomainIds.length > 1) {
+        await selectDomains(selectedDomainIds.filter(id => id !== domainId));
+      }
+    } else {
+      // Add domain
+      await selectDomains([...selectedDomainIds, domainId]);
+    }
+  }, [selectDomains, selectedDomainIds]);
 
   return {
-    // Stable primitives
-    isReady,
-    isLoading,
-    isInitialized,
-    
-    // Stable objects (from Zustand - reference stable unless state changes)
+    // Current state
     activeDomain,
-    
-    // Stable memoized config
+    activeDomains,
+    selectedDomainIds,
     domainConfig,
     
-    // Stable action reference
+    // Actions
+    switchDomain,
+    toggleDomain,
     selectDomains,
+    
+    // Status
+    isLoading,
+    isInitialized,
+    isReady: isInitialized && !isLoading,
+    
+    // Helpers
+    isDomainSelected: (domainId: string) => selectedDomainIds.includes(domainId),
+    getDomainName: () => activeDomain.name,
+    getDomainIcon: () => domainConfig?.iconComponent,
+    getPlaceholders: () => domainConfig?.placeholders,
   };
-}
-
-/**
- * Stable hook for domain ID only
- */
-export function useDomainId() {
-  return useGlobalSettings(state => state.selectedDomainIds[0] ?? null);
-}
-
-/**
- * Stable hook for domain placeholders
- */
-export function useDomainPlaceholders() {
-  const activeDomain = useActiveDomain();
-  return useMemo(() => {
-    if (!activeDomain?.domain_id) return null;
-    const domainKey = activeDomain.name.toLowerCase().replace(/\s+/g, '_') as DomainKey;
-    const config = getDomainConfig(domainKey);
-    return config.placeholders;
-  }, [activeDomain?.domain_id, activeDomain?.name]);
 }

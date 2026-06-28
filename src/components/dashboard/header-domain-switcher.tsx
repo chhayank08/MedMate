@@ -25,7 +25,6 @@ export function HeaderDomainSwitcher() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [mounted, setMounted] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const { predefinedDomains, customDomains, isLoading: domainsLoading } = useDomains();
@@ -40,16 +39,11 @@ export function HeaderDomainSwitcher() {
   // Subscribe directly to active domain from store for instant updates
   const activeDomain = useActiveDomain();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
   const allDomains = useMemo(() => {
-    if (!mounted) return [];
     const predefined = Array.isArray(predefinedDomains) ? predefinedDomains : [];
     const custom = Array.isArray(customDomains) ? customDomains : [];
     return [...predefined, ...custom].filter(d => d?.domain_id && d?.name);
-  }, [predefinedDomains, customDomains, mounted]);
+  }, [predefinedDomains, customDomains]);
 
   const filteredDomains = useMemo(() => {
     if (!search) return allDomains;
@@ -61,7 +55,7 @@ export function HeaderDomainSwitcher() {
   }, [allDomains, search]);
 
   const handleSelect = useCallback(async (domainId: string) => {
-    if (!mounted || isPending) return;
+    if (isPending) return;
 
     startTransition(async () => {
       try {
@@ -116,26 +110,21 @@ export function HeaderDomainSwitcher() {
           }));
         }
         
-        // Refresh server components (dashboard, etc.) without full page reload
-        router.refresh();
-        
         toast.success(`Switched to ${domainName || 'selected domain'}`);
       } catch (error) {
         console.error("[HeaderDomainSwitcher] Selection error:", error);
         toast.error("Failed to update domains");
       }
     });
-  }, [mounted, isPending, selectedDomainIds, limits, selectDomains, allDomains, router]);
+  }, [isPending, selectedDomainIds, limits, selectDomains, allDomains, router]);
 
-  const isLoading = domainsLoading || settingsLoading || !mounted || !isInitialized || isPending;
+  const isLoading = domainsLoading || settingsLoading || !isInitialized || isPending;
   const maxDomains = limits?.domains || 1;
   const selectedCount = selectedDomainIds.length;
 
-  if (!mounted) return null;
-
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger>
+      <PopoverTrigger asChild>
         <Button
           variant="outline"
           role="combobox"

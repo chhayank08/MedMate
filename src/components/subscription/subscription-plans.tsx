@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { useSubscription } from "@/hooks/use-subscription";
+import { useSubscription, useSubscriptionReady } from "@/hooks/use-subscription";
 import { usePremiumStatus } from "@/hooks/use-premium";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Check, Sparkles, Crown, Zap, TrendingUp, Brain, FileText, Layers, X, PartyPopper, Loader2 } from "lucide-react";
@@ -150,17 +150,16 @@ function PlanCard({ tier, name, price, description, isCurrent, isPopular, featur
 }
 
 export function SubscriptionPlans({ userId }: { userId?: string }) {
-  const { subscription, usage, limits, isLoading } = useSubscription();
-  const { isPremium, isLifetime, tier, isInitialized } = usePremiumStatus();
+  const { subscription, usage, limits, isLoading, isInitialized: subInitialized } = useSubscription();
+  const { isPremium, isLifetime, tier, isInitialized: premiumInitialized } = usePremiumStatus();
   const [isMounted, setIsMounted] = useState(false);
 
-  // Prevent hydration mismatch by only rendering after mount
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // CRITICAL: Wait for mount AND initialization before rendering premium UI
-  if (!isMounted) {
+  // CRITICAL: Separate hydration loading from missing data
+  if (!isMounted || !subInitialized || !premiumInitialized) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center space-y-3">
@@ -171,12 +170,12 @@ export function SubscriptionPlans({ userId }: { userId?: string }) {
     );
   }
   
-  if (isLoading || !isInitialized || !subscription) {
+  // After hydration, handle missing subscription
+  if (!subscription) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center space-y-3">
-          <Loader2 className="size-8 animate-spin mx-auto text-primary" />
-          <p className="text-sm text-muted-foreground">Loading subscription details...</p>
+          <p className="text-sm text-muted-foreground">Unable to load subscription. Please refresh.</p>
         </div>
       </div>
     );

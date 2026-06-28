@@ -195,8 +195,8 @@ export const useSubscriptionStore = create<SubscriptionState>()(
               lastSynced: state.lastSyncedAt
             });
             
-            // Mark as initialized if we have cached data
-            if (state.subscription && !state.isInitialized) {
+            // CRITICAL: Mark as initialized if we have cached subscription data
+            if (state.subscription) {
               state.isInitialized = true;
             }
           }

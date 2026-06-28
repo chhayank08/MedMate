@@ -6,6 +6,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Domain } from '@/types/domain.types';
 import { toast } from 'sonner';
+import { useMemo } from 'react';
+
+// Stable empty arrays
+const EMPTY_DOMAINS: Domain[] = Object.freeze([]);
 
 export function useDomains() {
   const queryClient = useQueryClient();
@@ -34,8 +38,8 @@ export function useDomains() {
         }
         
         return {
-          predefined: Array.isArray(data.predefined) ? data.predefined : [],
-          custom: Array.isArray(data.custom) ? data.custom : []
+          predefined: Array.isArray(data.predefined) ? data.predefined : EMPTY_DOMAINS,
+          custom: Array.isArray(data.custom) ? data.custom : EMPTY_DOMAINS
         };
       } catch (error) {
         console.error('[useDomains] Query error:', error);
@@ -109,9 +113,12 @@ export function useDomains() {
     }
   });
 
+  const predefinedDomains = useMemo(() => data?.predefined ?? EMPTY_DOMAINS, [data?.predefined]);
+  const customDomains = useMemo(() => data?.custom ?? EMPTY_DOMAINS, [data?.custom]);
+
   return {
-    predefinedDomains: data?.predefined || [],
-    customDomains: data?.custom || [],
+    predefinedDomains,
+    customDomains,
     isLoading,
     error,
     createCustomDomain: createCustomDomain.mutate,

@@ -6,6 +6,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Domain, SubjectWithDomain } from '@/types/domain.types';
+import { useMemo } from 'react';
 
 // ─── Safe Default State ─────────────────────────────────────────────────────
 
@@ -19,6 +20,26 @@ const DEFAULT_DOMAIN: Domain = {
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString()
 };
+
+// Stable array constant to prevent infinite renders
+const DEFAULT_DOMAIN_ARRAY = Object.freeze([DEFAULT_DOMAIN]);
+const EMPTY_ARRAY: Domain[] = Object.freeze([]);
+
+// Helper function for stable domain filtering
+function getActiveDomains(
+  domains: Domain[],
+  selectedDomainIds: string[]
+): Domain[] {
+  if (!selectedDomainIds.length || !domains.length) {
+    return DEFAULT_DOMAIN_ARRAY;
+  }
+
+  const filtered = domains.filter(domain =>
+    selectedDomainIds.includes(domain.domain_id)
+  );
+
+  return filtered.length ? filtered : DEFAULT_DOMAIN_ARRAY;
+}
 
 const EMPTY_STATE = {
   domains: [],
@@ -366,13 +387,13 @@ export const useGlobalSettings = create<GlobalSettingsState>()(
 
       getActiveDomains: () => {
         const { domains, selectedDomainIds } = get();
-        if (!selectedDomainIds.length || !domains.length) return [DEFAULT_DOMAIN];
+        if (!selectedDomainIds.length || !domains.length) return DEFAULT_DOMAIN_ARRAY;
         
         const activeDomains = domains.filter(d => 
           selectedDomainIds.includes(d.domain_id)
         );
         
-        return activeDomains.length > 0 ? activeDomains : [DEFAULT_DOMAIN];
+        return activeDomains.length > 0 ? activeDomains : DEFAULT_DOMAIN_ARRAY;
       },
 
       getEnabledSubjects: () => {
@@ -424,29 +445,23 @@ export function useInitializeSettings() {
 // ─── Selector Hooks ─────────────────────────────────────────────────────────
 
 export function useActiveDomain() {
-  return useGlobalSettings(state => {
-    const { domains, selectedDomainIds } = state;
+  const domains = useGlobalSettings(state => state.domains);
+  const selectedDomainIds = useGlobalSettings(state => state.selectedDomainIds);
+  
+  return useMemo(() => {
     if (!selectedDomainIds.length || !domains.length) return DEFAULT_DOMAIN;
-    
-    const activeDomain = domains.find(d => 
-      d.domain_id === selectedDomainIds[0]
-    );
-    
+    const activeDomain = domains.find(d => d.domain_id === selectedDomainIds[0]);
     return activeDomain || DEFAULT_DOMAIN;
-  });
+  }, [domains, selectedDomainIds]);
 }
 
 export function useActiveDomains() {
-  return useGlobalSettings(state => {
-    const { domains, selectedDomainIds } = state;
-    if (!selectedDomainIds.length || !domains.length) return [DEFAULT_DOMAIN];
-    
-    const activeDomains = domains.filter(d => 
-      selectedDomainIds.includes(d.domain_id)
-    );
-    
-    return activeDomains.length > 0 ? activeDomains : [DEFAULT_DOMAIN];
-  });
+  const domains = useGlobalSettings(state => state.domains);
+  const selectedDomainIds = useGlobalSettings(state => state.selectedDomainIds);
+  
+  return useMemo(() => {
+    return getActiveDomains(domains, selectedDomainIds);
+  }, [domains, selectedDomainIds]);
 }
 
 export function useEnabledSubjects() {

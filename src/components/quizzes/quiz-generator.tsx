@@ -79,14 +79,6 @@ function SubjectTags({
 export function QuizGenerator() {
   const router = useRouter();
   const { domainConfig, isReady, activeDomain } = useDomainContext();
-  
-  // STABLE placeholders - memoized to prevent recreation
-  const placeholders = useMemo(() => domainConfig?.placeholders ?? {
-    quizTopic: 'Biology topics',
-    summaryTopic: 'Science concepts',
-    taskExample: 'Study notes'
-  }, [domainConfig]);
-  
   const [mode, setMode] = useState<InputMode>("subject");
   const [title, setTitle] = useState("");
   const [subjects, setSubjects] = useState<string[]>([]);
@@ -115,6 +107,9 @@ export function QuizGenerator() {
       </Card>
     );
   }
+  
+  // Get domain-specific placeholders - now safe because guards passed
+  const placeholders = domainConfig.placeholders;
 
   function addSubject(value: string) {
     const trimmed = value.trim();

@@ -1,42 +1,45 @@
 // ============================================================================
-// useSubscription Hook - STABLE PRIMITIVE SELECTORS
+// useSubscription Hook - Task 11.2
 // Requirements: 6.5, 6.6, 15.5, 15.6
 // ============================================================================
 
+import { useQuery } from '@tanstack/react-query';
 import { useSubscriptionStore } from '@/lib/stores/subscription-store';
 import { ActionType } from '@/types/subscription.types';
-import { useEffect } from 'react';
+import { useMemo } from 'react';
 
-/**
- * STABLE subscription hook using ONLY primitive selectors
- * Prevents infinite rerenders by avoiding object recreation
- */
-export function useSubscription() {
-  // STABLE primitive selectors - no object creation
-  const loadSubscription = useSubscriptionStore(state => state.loadSubscription);
+// Stable hook for ready state - split selectors for stability
+export function useSubscriptionReady() {
   const subscription = useSubscriptionStore(state => state.subscription);
-  const usage = useSubscriptionStore(state => state.usage);
-  const limits = useSubscriptionStore(state => state.limits);
-  const isLoading = useSubscriptionStore(state => state.isLoading);
   const isInitialized = useSubscriptionStore(state => state.isInitialized);
-  const checkLimit = useSubscriptionStore(state => state.checkLimit);
-  const getRemainingQuota = useSubscriptionStore(state => state.getRemainingQuota);
-  const getUsagePercentage = useSubscriptionStore(state => state.getUsagePercentage);
+  const isLoading = useSubscriptionStore(state => state.isLoading);
 
-  // Load on mount ONCE
-  useEffect(() => {
-    if (!isInitialized) {
-      loadSubscription();
-    }
-  }, [isInitialized, loadSubscription]);
+  return useMemo(() => ({
+    subscription,
+    isInitialized,
+    isLoading,
+  }), [subscription, isInitialized, isLoading]);
+}
+
+export function useSubscription() {
+  const store = useSubscriptionStore();
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['subscription'],
+    queryFn: async () => {
+      await store.loadSubscription();
+      return { subscription: store.subscription, usage: store.usage, limits: store.limits };
+    },
+    staleTime: 2 * 60 * 1000
+  });
 
   const canPerformAction = (action: ActionType): boolean => {
-    const result = checkLimit(action);
+    const result = store.checkLimit(action);
     return result?.allowed ?? false;
   };
 
   const getUpgradePrompt = (action: ActionType) => {
-    const result = checkLimit(action);
+    const result = store.checkLimit(action);
     if (!result || result.allowed) return null;
     
     return {
@@ -49,14 +52,14 @@ export function useSubscription() {
   };
 
   return {
-    subscription,
-    usage,
-    limits,
+    subscription: data?.subscription,
+    usage: data?.usage,
+    limits: data?.limits,
     isLoading,
-    isInitialized,
+    isInitialized: store.isInitialized,
     canPerformAction,
     getUpgradePrompt,
-    getRemainingQuota,
-    getUsagePercentage
+    getRemainingQuota: store.getRemainingQuota,
+    getUsagePercentage: store.getUsagePercentage
   };
 }

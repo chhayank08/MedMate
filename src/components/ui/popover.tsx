@@ -9,8 +9,23 @@ function Popover({ ...props }: PopoverPrimitive.Root.Props) {
   return <PopoverPrimitive.Root data-slot="popover" {...props} />
 }
 
-function PopoverTrigger({ ...props }: PopoverPrimitive.Trigger.Props) {
-  return <PopoverPrimitive.Trigger data-slot="popover-trigger" {...props} />
+function PopoverTrigger({ asChild, children, ...props }: PopoverPrimitive.Trigger.Props & { asChild?: boolean }) {
+  if (asChild) {
+    // When asChild is true, use render prop to merge with child element
+    return (
+      <PopoverPrimitive.Trigger 
+        data-slot="popover-trigger" 
+        render={(triggerProps) => {
+          if (React.isValidElement(children)) {
+            return React.cloneElement(children, { ...triggerProps, ...children.props });
+          }
+          return <button {...triggerProps}>{children}</button>;
+        }}
+        {...props} 
+      />
+    );
+  }
+  return <PopoverPrimitive.Trigger data-slot="popover-trigger" {...props}>{children}</PopoverPrimitive.Trigger>;
 }
 
 function PopoverContent({

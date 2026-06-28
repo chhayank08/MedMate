@@ -26,15 +26,13 @@ export function DomainDebugPanel() {
   
   const {
     activeDomain,
+    activeDomains,
+    selectedDomainIds,
     isInitialized,
     isLoading,
-    isReady,
-    selectDomains
+    isReady
   } = useDomainContext();
-  
-  // Get additional data directly from store
-  const activeDomains = useGlobalSettings(state => state.getActiveDomains());
-  const selectedDomainIds = useGlobalSettings(state => state.selectedDomainIds);
+
   const store = useGlobalSettings();
 
   // Listen for domain changes
