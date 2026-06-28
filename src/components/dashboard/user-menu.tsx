@@ -18,6 +18,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { getInitials } from "@/lib/utils";
 import { useSubscription } from "@/hooks/use-subscription";
+import { useSubscriptionStore } from "@/lib/stores/subscription-store";
 import { cn } from "@/lib/utils";
 
 export function UserMenu({
@@ -30,7 +31,20 @@ export function UserMenu({
   avatarUrl?: string | null;
 }) {
   const router = useRouter();
-  const { subscription } = useSubscription();
+  const { subscription, isLoading } = useSubscription();
+  const subscriptionStore = useSubscriptionStore();
+  
+  // Wait for hydration before showing premium UI
+  if (!subscriptionStore.isInitialized || isLoading) {
+    return (
+      <Button variant="ghost" size="icon" className="rounded-full">
+        <Avatar className="size-8">
+          <AvatarFallback>{getInitials(name, email)}</AvatarFallback>
+        </Avatar>
+      </Button>
+    );
+  }
+  
   const isLifetime = subscription?.tier === 'premium';
 
   async function signOut() {

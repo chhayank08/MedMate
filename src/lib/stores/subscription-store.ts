@@ -7,12 +7,17 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { Subscription, UsageStats, TierLimits, LimitCheckResult, ActionType, TIER_LIMITS } from '@/types/subscription.types';
 
+// Request deduplication: track in-flight subscription request
+let subscriptionRequest: Promise<void> | null = null;
+const CACHE_DURATION_MS = 30_000; // 30 seconds
+
 interface SubscriptionState {
   subscription: Subscription | null;
   usage: UsageStats | null;
   limits: TierLimits | null;
   isLoading: boolean;
   isInitialized: boolean;
+  lastSyncedAt: Date | null;
   error: Error | null;
   loadSubscription: () => Promise<void>;
   checkLimit: (action: ActionType) => LimitCheckResult | null;
@@ -29,37 +34,64 @@ export const useSubscriptionStore = create<SubscriptionState>()(
       limits: null,
       isLoading: false,
       isInitialized: false,
+      lastSyncedAt: null,
       error: null,
 
       loadSubscription: async () => {
-        set({ isLoading: true, error: null });
-        try {
-          const res = await fetch('/api/subscription/status');
-          const json = await res.json();
-          if (!json.success) throw new Error(json.error.message);
-          
-          const { subscription, usage, limits } = json.data;
-          
-          // Validate subscription tier
-          const validTiers = ['free', 'pro', 'premium'];
-          const tier = validTiers.includes(subscription.tier) ? subscription.tier : 'free';
-          
-          const validatedSubscription = {
-            ...subscription,
-            tier
-          };
-          
-          set({ 
-            subscription: validatedSubscription, 
-            usage, 
-            limits, 
-            isLoading: false,
-            isInitialized: true
-          });
-        } catch (error) {
-          console.error('[SubscriptionStore] Load error:', error);
-          set({ error: error as Error, isLoading: false, isInitialized: true });
+        // Deduplicate: reuse in-flight request
+        if (subscriptionRequest) {
+          console.log('[SubscriptionStore] Reusing in-flight request');
+          return subscriptionRequest;
         }
+
+        // Don't reload if recently synced (within cache duration)
+        const state = get();
+        if (state.isInitialized && state.subscription && state.lastSyncedAt) {
+          const elapsed = Date.now() - state.lastSyncedAt.getTime();
+          if (elapsed < CACHE_DURATION_MS) {
+            console.log('[SubscriptionStore] Using cached data (age:', Math.round(elapsed / 1000), 's)');
+            return;
+          }
+        }
+
+        set({ isLoading: true, error: null });
+        
+        subscriptionRequest = (async () => {
+          try {
+            const res = await fetch('/api/subscription/status');
+            const json = await res.json();
+            if (!json.success) throw new Error(json.error.message);
+            
+            const { subscription, usage, limits } = json.data;
+            
+            // Validate subscription tier
+            const validTiers = ['free', 'pro', 'premium'];
+            const tier = validTiers.includes(subscription.tier) ? subscription.tier : 'free';
+            
+            const validatedSubscription = {
+              ...subscription,
+              tier
+            };
+            
+            set({ 
+              subscription: validatedSubscription, 
+              usage, 
+              limits, 
+              isLoading: false,
+              isInitialized: true,
+              lastSyncedAt: new Date()
+            });
+            
+            console.log('[SubscriptionStore] Loaded successfully:', validatedSubscription.tier);
+          } catch (error) {
+            console.error('[SubscriptionStore] Load error:', error);
+            set({ error: error as Error, isLoading: false, isInitialized: true });
+          } finally {
+            subscriptionRequest = null;
+          }
+        })();
+
+        return subscriptionRequest;
       },
 
       checkLimit: (action: ActionType) => {
@@ -128,7 +160,26 @@ export const useSubscriptionStore = create<SubscriptionState>()(
       partialize: (state) => ({
         subscription: state.subscription,
         limits: state.limits,
+        lastSyncedAt: state.lastSyncedAt,
       }),
+      onRehydrateStorage: () => {
+        console.log('[SubscriptionStore] Rehydrating from localStorage...');
+        return (state, error) => {
+          if (error) {
+            console.error('[SubscriptionStore] Hydration error:', error);
+          } else if (state) {
+            console.log('[SubscriptionStore] Hydrated successfully:', {
+              tier: state.subscription?.tier,
+              initialized: state.isInitialized,
+              lastSynced: state.lastSyncedAt
+            });
+            // Mark as initialized if we have cached data
+            if (state.subscription && !state.isInitialized) {
+              state.isInitialized = true;
+            }
+          }
+        };
+      },
     }
   )
 );

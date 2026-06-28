@@ -10,14 +10,14 @@ import { useSubscriptionStore } from "@/lib/stores/subscription-store";
  */
 export function SubscriptionInitializer() {
   const loadSubscription = useSubscriptionStore(state => state.loadSubscription);
-  const subscription = useSubscriptionStore(state => state.subscription);
+  const isInitialized = useSubscriptionStore(state => state.isInitialized);
 
   useEffect(() => {
-    // Load subscription immediately on mount
-    if (!subscription) {
+    // Load subscription once on mount if not already initialized
+    if (!isInitialized) {
       loadSubscription();
     }
-  }, [loadSubscription, subscription]);
+  }, []); // Run only once on mount
 
   // Listen for auth state changes
   useEffect(() => {
