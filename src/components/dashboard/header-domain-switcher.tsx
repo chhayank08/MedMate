@@ -94,12 +94,22 @@ export function HeaderDomainSwitcher() {
 
         await selectDomains(newSelection);
         const domainName = allDomains.find(d => d.domain_id === domainId)?.name;
+        
+        // Close popover and clear search
         setOpen(false);
         setSearch("");
         
-        // Trigger page refresh to update all domain-dependent content
+        // Trigger global events for cross-component updates
         if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('domain-changed', { detail: { domainId, domainName } }));
+          window.dispatchEvent(new CustomEvent('domain-changed', { 
+            detail: { domainId, domainName } 
+          }));
+          window.dispatchEvent(new CustomEvent('global-domain-updated', { 
+            detail: { domainIds: newSelection } 
+          }));
+          
+          // Force page refresh to update all domain-dependent content
+          setTimeout(() => window.location.reload(), 100);
         }
         
         toast.success(`Switched to ${domainName || 'selected domain'}`);

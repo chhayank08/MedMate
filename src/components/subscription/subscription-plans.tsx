@@ -172,29 +172,29 @@ export function SubscriptionPlans({ userId }: { userId?: string }) {
     }
     console.log('Upgrade to:', tier);
     toast.info('Upgrade functionality coming soon!');
-    // TODO: Implement Stripe checkout
   };
 
   return (
     <div className="space-y-8">
       {/* Lifetime Subscriber Celebration Banner */}
       {isLifetime && (
-        <Card className="border-2 border-yellow-500 bg-gradient-to-r from-yellow-50 to-amber-50 dark:from-yellow-950/20 dark:to-amber-950/20">
-          <CardContent className="pt-6">
+        <Card className="relative border-4 border-yellow-500 bg-gradient-to-r from-yellow-50 via-amber-50 to-yellow-50 dark:from-yellow-950/20 dark:via-amber-950/20 dark:to-yellow-950/20 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-yellow-400/10 via-transparent to-amber-400/10 animate-pulse" />
+          <CardContent className="pt-6 relative z-10">
             <div className="flex items-center gap-4">
-              <div className="flex size-16 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 shadow-lg">
-                <Crown className="size-8 text-white" />
+              <div className="relative flex size-20 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 via-amber-500 to-yellow-600 shadow-2xl ring-4 ring-yellow-300 dark:ring-yellow-600">
+                <Crown className="size-10 text-white drop-shadow-lg" />
+                <div className="absolute inset-0 rounded-full bg-gradient-to-t from-transparent to-white/30" />
               </div>
               <div className="flex-1">
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className="text-2xl font-bold bg-gradient-to-r from-yellow-600 to-amber-600 bg-clip-text text-transparent">
-                    Congratulations! You're a Lifetime Member
+                <div className="flex items-center gap-2 mb-2">
+                  <h3 className="text-3xl font-bold bg-gradient-to-r from-yellow-600 via-amber-600 to-yellow-700 bg-clip-text text-transparent">
+                    🎉 Congratulations! You're a Lifetime Member 🎉
                   </h3>
-                  <PartyPopper className="size-6 text-yellow-500" />
                 </div>
-                <p className="text-muted-foreground">
-                  Thank you for your support! You have unlimited access to all premium features forever. 
-                  Enjoy multi-domain learning, unlimited subjects, 500 quizzes/month, 500 summaries/month, and all future updates.
+                <p className="text-base text-muted-foreground font-medium">
+                  Thank you for your incredible support! You have unlimited access to all premium features forever. 
+                  Enjoy 10 learning domains, unlimited subjects, 500 AI quizzes/month, 500 summaries/month, priority support, and all future updates at no extra cost.
                 </p>
               </div>
             </div>

@@ -272,10 +272,10 @@ export const useGlobalSettings = create<GlobalSettingsState>()(
         set({ subjects: updatedSubjects });
 
         try {
-          const payload = updatedSubjects.map(s => ({
+          // Correct payload format matching API schema
+          const payload = subjects.map(s => ({
             subjectId: s.subject_id,
-            domainId: s.domain_id,
-            enabled: s.enabled
+            enabled: s.subject_id === subjectId ? enabled : (s.enabled || false)
           }));
 
           const res = await fetch('/api/preferences/subjects', {

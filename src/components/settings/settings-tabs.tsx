@@ -141,7 +141,7 @@ export function SettingsTabs({ userEmail }: { userEmail?: string }) {
                 <CardDescription>
                   {maxDomains === 1 
                     ? 'Select your primary learning domain. Switch anytime to adapt your entire learning experience. Upgrade to Pro for multiple domains!'
-                    : `Select up to ${maxDomains} domains to create a comprehensive multi-field learning experience.`
+                    : `Select up to ${maxDomains} domains to create a comprehensive multi-field learning experience. All subjects within selected domains are automatically enabled.`
                   }
                 </CardDescription>
               </CardHeader>
@@ -155,27 +155,6 @@ export function SettingsTabs({ userEmail }: { userEmail?: string }) {
                     onSelectionChange={handleDomainChange}
                     maxSelections={maxDomains}
                   />
-                )}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Subjects</CardTitle>
-                <CardDescription>
-                  Enable subjects within your selected domains to customize your learning experience.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {settingsLoading ? (
-                  <Skeleton className="h-48 w-full" />
-                ) : subjects && subjects.length > 0 ? (
-                  <SubjectTogglePanel
-                    subjects={subjects}
-                    onToggle={handleSubjectToggle}
-                  />
-                ) : (
-                  <p className="text-sm text-muted-foreground">Select a domain to enable subjects.</p>
                 )}
               </CardContent>
             </Card>
