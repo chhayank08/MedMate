@@ -148,7 +148,7 @@ export function PricingSection() {
                     </div>
 
                     <Button 
-                      render={<Link href="/signup" />}
+                      asChild
                       className={`w-full py-6 text-lg font-semibold rounded-2xl
                         ${plan.popular 
                           ? 'bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600' 
@@ -156,7 +156,9 @@ export function PricingSection() {
                         }
                       `}
                     >
-                      {plan.price === 0 ? 'Get Started' : 'Start Free Trial'}
+                      <Link href="/signup">
+                        {plan.price === 0 ? 'Get Started' : 'Start Free Trial'}
+                      </Link>
                     </Button>
 
                     <div className="space-y-3 pt-6 border-t border-white/10">

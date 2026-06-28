@@ -89,18 +89,18 @@ export function MobileMenu() {
                 >
                   <Button
                     variant="ghost"
-                    render={<Link href="/login" />}
+                    asChild
                     onClick={() => setIsOpen(false)}
                     className="w-full justify-start"
                   >
-                    Sign in
+                    <Link href="/login">Sign in</Link>
                   </Button>
                   <Button
-                    render={<Link href="/signup" />}
+                    asChild
                     onClick={() => setIsOpen(false)}
                     className="w-full bg-gradient-to-r from-primary to-blue-500"
                   >
-                    Get started
+                    <Link href="/signup">Get started</Link>
                   </Button>
                 </motion.div>
               </nav>

@@ -105,10 +105,12 @@ export function CinematicHero() {
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button
                   size="lg"
-                  render={<Link href="/signup" />}
+                  asChild
                   className="bg-gradient-to-r from-primary to-blue-500 hover:from-primary/90 hover:to-blue-500/90 text-lg px-8 py-6 rounded-2xl shadow-xl shadow-primary/25"
                 >
-                  Start learning free <ArrowRight className="size-5 ml-2" />
+                  <Link href="/signup">
+                    Start learning free <ArrowRight className="size-5 ml-2" />
+                  </Link>
                 </Button>
               </motion.div>
             </FloatingElement>
@@ -118,10 +120,12 @@ export function CinematicHero() {
                 <Button
                   size="lg"
                   variant="outline"
-                  render={<Link href="/login" />}
+                  asChild
                   className="text-lg px-8 py-6 rounded-2xl border-2"
                 >
-                  I already have an account
+                  <Link href="/login">
+                    I already have an account
+                  </Link>
                 </Button>
               </motion.div>
             </FloatingElement>

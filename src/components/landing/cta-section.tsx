@@ -106,11 +106,13 @@ export function CTASection() {
                 >
                   <Button 
                     size="lg"
-                    render={<Link href="/signup" />}
+                    asChild
                     className="bg-gradient-to-r from-primary to-blue-500 hover:from-primary/90 hover:to-blue-500/90 text-lg px-8 py-6 rounded-2xl shadow-lg shadow-primary/25"
                   >
-                    Get started free
-                    <ArrowRight className="w-5 h-5 ml-2" />
+                    <Link href="/signup">
+                      Get started free
+                      <ArrowRight className="w-5 h-5 ml-2" />
+                    </Link>
                   </Button>
                 </motion.div>
 
@@ -121,10 +123,12 @@ export function CTASection() {
                   <Button 
                     size="lg"
                     variant="outline"
-                    render={<Link href="/login" />}
+                    asChild
                     className="text-lg px-8 py-6 rounded-2xl border-2"
                   >
-                    Sign in
+                    <Link href="/login">
+                      Sign in
+                    </Link>
                   </Button>
                 </motion.div>
               </motion.div>
