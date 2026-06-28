@@ -91,7 +91,9 @@ export function ExampleMultiDomainComponent() {
  */
 export function ExampleIconComponent() {
   const { domainConfig } = useDomainContext();
-  const IconComponent = domainConfig.iconComponent;
+  const IconComponent = domainConfig?.iconComponent;
+
+  if (!IconComponent) return null;
 
   return (
     <div>
