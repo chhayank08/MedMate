@@ -197,7 +197,8 @@ export const useGlobalSettings = create<GlobalSettingsState>()(
 
         // Optimistic update
         const previousIds = get().selectedDomainIds;
-        set({ selectedDomainIds: domainIds });
+        const previousSubjects = get().subjects;
+        set({ selectedDomainIds: domainIds, isLoading: true });
 
         try {
           const res = await fetch('/api/preferences/domains', {
@@ -222,12 +223,38 @@ export const useGlobalSettings = create<GlobalSettingsState>()(
             set({ subjects });
           }
 
-          set({ lastSyncedAt: new Date(), error: null });
+          // Sync to localStorage for legacy compatibility
+          if (typeof window !== 'undefined' && domainIds.length > 0) {
+            const primaryDomain = get().domains.find(d => d.domain_id === domainIds[0]);
+            if (primaryDomain) {
+              const domainKey = primaryDomain.name.toLowerCase().replace(/\s+/g, '_');
+              try {
+                localStorage.setItem('prepbud:active-domain', domainKey);
+                localStorage.setItem('prepbud:selected-domains', JSON.stringify(domainIds));
+              } catch (e) {
+                console.warn('[GlobalSettings] localStorage sync failed:', e);
+              }
+            }
+          }
+
+          set({ lastSyncedAt: new Date(), error: null, isLoading: false });
+          
+          // Broadcast change event for cross-component updates
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('global-domain-updated', { 
+              detail: { domainIds } 
+            }));
+          }
 
         } catch (error) {
           console.error('[GlobalSettings] Select domains error:', error);
           // Rollback on error
-          set({ selectedDomainIds: previousIds, error: error as Error });
+          set({ 
+            selectedDomainIds: previousIds,
+            subjects: previousSubjects,
+            error: error as Error, 
+            isLoading: false 
+          });
           throw error;
         }
       },
@@ -363,7 +390,24 @@ export const useGlobalSettings = create<GlobalSettingsState>()(
       partialize: (state) => ({
         selectedDomainIds: state.selectedDomainIds,
         uiSettings: state.uiSettings
-      })
+      }),
+      // Enable cross-tab synchronization
+      onRehydrateStorage: () => (state) => {
+        if (state && typeof window !== 'undefined') {
+          // Sync with legacy localStorage
+          const storedDomains = localStorage.getItem('prepbud:selected-domains');
+          if (storedDomains) {
+            try {
+              const domainIds = JSON.parse(storedDomains);
+              if (Array.isArray(domainIds) && domainIds.length > 0) {
+                state.selectedDomainIds = domainIds;
+              }
+            } catch (e) {
+              console.warn('[GlobalSettings] Failed to parse stored domains:', e);
+            }
+          }
+        }
+      }
     }
   )
 );

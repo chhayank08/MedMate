@@ -1,15 +1,15 @@
 // ============================================================================
-// Domain Selector Component - Task 16.2
-// Requirements: 1.1, 1.4, 1.6, 6.6
+// Domain Selector Component - Unified Domain Selection UI
+// Used in Settings and supports both single and multi-domain selection
 // ============================================================================
 
 'use client';
 
-import { useMemo, useCallback, type MouseEvent } from 'react';
+import { useMemo, useCallback, type MouseEvent, useTransition } from 'react';
 import { Domain } from '@/types/domain.types';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Check, AlertCircle } from 'lucide-react';
+import { Check, AlertCircle, Layers, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getDomainConfig } from '@/lib/domain-config';
 
@@ -21,6 +21,8 @@ interface DomainSelectorProps {
 }
 
 export function DomainSelector({ domains, selectedDomains, onSelectionChange, maxSelections }: DomainSelectorProps) {
+  const [isPending, startTransition] = useTransition();
+  
   const validDomains = useMemo(() => {
     try {
       return (domains || []).filter(d => d && d.domain_id && d.name);
@@ -43,34 +45,46 @@ export function DomainSelector({ domains, selectedDomains, onSelectionChange, ma
     e.preventDefault();
     e.stopPropagation();
     
-    try {
-      if (!domainId || typeof domainId !== 'string') {
-        console.warn('[DomainSelector] Invalid domain ID:', domainId);
-        return;
-      }
+    if (isPending) return;
+    
+    startTransition(() => {
+      try {
+        if (!domainId || typeof domainId !== 'string') {
+          console.warn('[DomainSelector] Invalid domain ID:', domainId);
+          return;
+        }
 
-      const isSelected = validSelectedDomains.includes(domainId);
-      let newSelection: string[];
-      
-      if (maxSelections === 1) {
-        // Single selection mode (free users): always replace
-        newSelection = [domainId];
-      } else {
-        // Multi-selection mode (paid users): toggle
-        newSelection = isSelected 
-          ? validSelectedDomains.filter(id => id !== domainId)
-          : validSelectedDomains.length < maxSelections 
-            ? [...validSelectedDomains, domainId] 
-            : validSelectedDomains;
+        const isSelected = validSelectedDomains.includes(domainId);
+        let newSelection: string[];
+        
+        if (maxSelections === 1) {
+          // Single selection mode (free users): always replace
+          newSelection = [domainId];
+        } else {
+          // Multi-selection mode (paid users): toggle
+          newSelection = isSelected 
+            ? validSelectedDomains.filter(id => id !== domainId)
+            : validSelectedDomains.length < maxSelections 
+              ? [...validSelectedDomains, domainId] 
+              : validSelectedDomains;
+        }
+        
+        if (JSON.stringify(newSelection.sort()) !== JSON.stringify(validSelectedDomains.sort())) {
+          onSelectionChange(newSelection);
+          
+          // Trigger domain change event for global updates
+          if (typeof window !== 'undefined') {
+            const domain = validDomains.find(d => d.domain_id === domainId);
+            window.dispatchEvent(new CustomEvent('domain-changed', { 
+              detail: { domainId, domainName: domain?.name } 
+            }));
+          }
+        }
+      } catch (error) {
+        console.error('[DomainSelector] Toggle error:', error);
       }
-      
-      if (JSON.stringify(newSelection.sort()) !== JSON.stringify(validSelectedDomains.sort())) {
-        onSelectionChange(newSelection);
-      }
-    } catch (error) {
-      console.error('[DomainSelector] Toggle error:', error);
-    }
-  }, [validSelectedDomains, maxSelections, onSelectionChange]);
+    });
+  }, [validSelectedDomains, maxSelections, onSelectionChange, validDomains, isPending]);
 
   if (!validDomains.length) {
     return (
@@ -97,9 +111,12 @@ export function DomainSelector({ domains, selectedDomains, onSelectionChange, ma
             <Card
               key={domain.domain_id}
               className={cn(
-                "p-4 cursor-pointer transition-all hover:scale-102",
-                isSelected && "border-primary bg-primary/5",
-                isDisabled && "opacity-50 cursor-not-allowed"
+                "p-4 cursor-pointer transition-all relative",
+                "hover:scale-[1.02] hover:shadow-lg",
+                isSelected && "border-primary bg-primary/5 ring-2 ring-primary/20 shadow-md",
+                isDisabled && "opacity-50 cursor-not-allowed",
+                !isSelected && !isDisabled && "hover:border-primary/50",
+                isPending && "pointer-events-none"
               )}
               onClick={(e) => !isDisabled && handleToggle(domain.domain_id, e)}
               role="button"
@@ -107,21 +124,34 @@ export function DomainSelector({ domains, selectedDomains, onSelectionChange, ma
               aria-pressed={isSelected}
               aria-disabled={isDisabled}
             >
-              <div className="flex items-start gap-3">
-                {IconComponent && (
-                  <div className={cn("mt-1", domainConfig?.color)}>
-                    <IconComponent className="h-5 w-5" />
-                  </div>
-                )}
-                <div className="flex-1">
-                  <h3 className="font-semibold">{domain.name || 'Unnamed Domain'}</h3>
-                  {domain.description && <p className="text-sm text-muted-foreground mt-1">{domain.description}</p>}
+              {isPending && (
+                <div className="absolute inset-0 flex items-center justify-center bg-background/50 rounded-lg backdrop-blur-sm">
+                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
                 </div>
-                {isSelected && (
-                  <Badge variant="default" className="shrink-0">
-                    <Check className="h-3 w-3" />
-                  </Badge>
-                )}
+              )}
+              <div className="flex items-start gap-3">
+                <div className={cn("mt-0.5 shrink-0 transition-all", domainConfig?.color, isSelected && "scale-110")}>
+                  {IconComponent ? (
+                    <IconComponent className="h-6 w-6" />
+                  ) : domain.icon_name ? (
+                    <span className="text-2xl">{domain.icon_name}</span>
+                  ) : (
+                    <Layers className="h-6 w-6 text-muted-foreground" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="font-semibold text-base leading-tight">{domain.name || 'Unnamed Domain'}</h3>
+                    {isSelected && (
+                      <Badge variant="default" className="shrink-0">
+                        <Check className="h-3 w-3" />
+                      </Badge>
+                    )}
+                  </div>
+                  {domain.description && (
+                    <p className="text-sm text-muted-foreground mt-1.5 line-clamp-2">{domain.description}</p>
+                  )}
+                </div>
               </div>
             </Card>
           );

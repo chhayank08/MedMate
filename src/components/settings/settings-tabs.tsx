@@ -20,7 +20,7 @@ import { useGlobalSettings } from "@/lib/stores/global-settings-store";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { UpgradeModal } from "@/components/subscription/upgrade-modal";
 import { ErrorBoundary } from "@/components/shared/error-boundary";
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 
 export function SettingsTabs({ userEmail }: { userEmail?: string }) {
@@ -54,6 +54,24 @@ export function SettingsTabs({ userEmail }: { userEmail?: string }) {
   }, [predefinedDomains, customDomains]);
 
   const maxDomains = limits?.domains || 1;
+
+  // Listen for domain changes from other components (like header)
+  useEffect(() => {
+    const handleDomainChange = (event: CustomEvent) => {
+      console.log('[SettingsTabs] Domain changed externally:', event.detail);
+      // State is already synced via the global store, just log for debugging
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('domain-changed' as any, handleDomainChange);
+      window.addEventListener('global-domain-updated' as any, handleDomainChange);
+      
+      return () => {
+        window.removeEventListener('domain-changed' as any, handleDomainChange);
+        window.removeEventListener('global-domain-updated' as any, handleDomainChange);
+      };
+    }
+  }, []);
 
   const handleDomainChange = useCallback(async (domainIds: string[]) => {
     try {
@@ -122,8 +140,8 @@ export function SettingsTabs({ userEmail }: { userEmail?: string }) {
                 <CardTitle>Learning Domains</CardTitle>
                 <CardDescription>
                   {maxDomains === 1 
-                    ? 'Select your primary learning domain. You can switch anytime. Upgrade to Pro for multiple domains!'
-                    : `Select up to ${maxDomains} domains you want to study.`
+                    ? 'Select your primary learning domain. Switch anytime to adapt your entire learning experience. Upgrade to Pro for multiple domains!'
+                    : `Select up to ${maxDomains} domains to create a comprehensive multi-field learning experience.`
                   }
                 </CardDescription>
               </CardHeader>
