@@ -47,7 +47,11 @@ export const useSubscriptionStore = create<SubscriptionState>()(
         // Don't reload if recently synced (within cache duration)
         const state = get();
         if (state.isInitialized && state.subscription && state.lastSyncedAt) {
-          const elapsed = Date.now() - state.lastSyncedAt.getTime();
+          // Convert to Date if it's a string (from localStorage)
+          const lastSync = typeof state.lastSyncedAt === 'string' 
+            ? new Date(state.lastSyncedAt).getTime()
+            : state.lastSyncedAt.getTime();
+          const elapsed = Date.now() - lastSync;
           if (elapsed < CACHE_DURATION_MS) {
             console.log('[SubscriptionStore] Using cached data (age:', Math.round(elapsed / 1000), 's)');
             return;
@@ -168,11 +172,17 @@ export const useSubscriptionStore = create<SubscriptionState>()(
           if (error) {
             console.error('[SubscriptionStore] Hydration error:', error);
           } else if (state) {
+            // Convert lastSyncedAt from string to Date if needed
+            if (state.lastSyncedAt && typeof state.lastSyncedAt === 'string') {
+              state.lastSyncedAt = new Date(state.lastSyncedAt);
+            }
+            
             console.log('[SubscriptionStore] Hydrated successfully:', {
               tier: state.subscription?.tier,
               initialized: state.isInitialized,
               lastSynced: state.lastSyncedAt
             });
+            
             // Mark as initialized if we have cached data
             if (state.subscription && !state.isInitialized) {
               state.isInitialized = true;
