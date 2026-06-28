@@ -200,7 +200,9 @@ function QuizResults({
             <Button variant="outline" onClick={onRetake}>
               <RotateCcw className="size-4" /> Retake
             </Button>
-            <Button render={<Link href="/quizzes" />}>Back to quizzes</Button>
+            <Button asChild>
+              <Link href="/quizzes">Back to quizzes</Link>
+            </Button>
           </div>
         </CardContent>
       </Card>

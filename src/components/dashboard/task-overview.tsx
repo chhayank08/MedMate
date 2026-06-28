@@ -52,8 +52,8 @@ export function TaskOverview({
           <CardTitle className="flex items-center gap-2">
             <CalendarClock className="size-4.5 text-primary" /> Today&apos;s Tasks
           </CardTitle>
-          <Button variant="ghost" size="sm" render={<Link href="/tasks" />}>
-            View all
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/tasks">View all</Link>
           </Button>
         </CardHeader>
         <CardContent>
@@ -78,8 +78,8 @@ export function TaskOverview({
           <CardTitle className="flex items-center gap-2">
             <CalendarClock className="size-4.5 text-chart-2" /> Upcoming
           </CardTitle>
-          <Button variant="ghost" size="sm" render={<Link href="/tasks" />}>
-            View all
+          <Button variant="ghost" size="sm" asChild>
+            <Link href="/tasks">View all</Link>
           </Button>
         </CardHeader>
         <CardContent>

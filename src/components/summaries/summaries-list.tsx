@@ -55,8 +55,10 @@ export function SummariesList() {
         title="No summaries yet"
         description="Generate your first AI summary from your notes."
         action={
-          <Button render={<Link href="/summaries/new" />}>
-            <Plus className="size-4" /> New summary
+          <Button asChild>
+            <Link href="/summaries/new">
+              <Plus className="size-4" /> New summary
+            </Link>
           </Button>
         }
       />

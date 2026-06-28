@@ -11,8 +11,10 @@ export default function QuizzesPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Quizzes" description="All your AI-generated quizzes and performance history.">
-        <Button render={<Link href="/quizzes/new" />}>
-          <Plus className="size-4" /> New quiz
+        <Button asChild>
+          <Link href="/quizzes/new">
+            <Plus className="size-4" /> New quiz
+          </Link>
         </Button>
       </PageHeader>
       <QuizzesList />

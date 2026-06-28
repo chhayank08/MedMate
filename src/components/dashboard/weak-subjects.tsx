@@ -13,8 +13,8 @@ export function WeakSubjects({ subjects }: { subjects: SubjectAnalytics[] }) {
         <CardTitle className="flex items-center gap-2">
           <TriangleAlert className="size-4.5 text-warning" /> Weak Subjects
         </CardTitle>
-        <Button variant="ghost" size="sm" render={<Link href="/analytics" />}>
-          Details
+        <Button variant="ghost" size="sm" asChild>
+          <Link href="/analytics">Details</Link>
         </Button>
       </CardHeader>
       <CardContent>

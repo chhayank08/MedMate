@@ -48,8 +48,10 @@ export function QuizzesList() {
         title="No quizzes yet"
         description="Generate your first quiz from your notes and start testing yourself."
         action={
-          <Button render={<Link href="/quizzes/new" />}>
-            <Plus className="size-4" /> New quiz
+          <Button asChild>
+            <Link href="/quizzes/new">
+              <Plus className="size-4" /> New quiz
+            </Link>
           </Button>
         }
       />
@@ -122,8 +124,10 @@ export function QuizzesList() {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-xs text-muted-foreground">{formatDate(q.created_at)}</span>
-                <Button size="sm" render={<Link href={`/quizzes/${q.id}`} />}>
-                  <Play className="size-4" /> {attempts > 0 ? "Retake" : "Start"}
+                <Button size="sm" asChild>
+                  <Link href={`/quizzes/${q.id}`}>
+                    <Play className="size-4" /> {attempts > 0 ? "Retake" : "Start"}
+                  </Link>
                 </Button>
               </div>
             </CardContent>

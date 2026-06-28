@@ -24,8 +24,8 @@ export function RecentQuizzes({
         <CardTitle className="flex items-center gap-2">
           <Brain className="size-4.5 text-chart-2" /> Recent Quiz Scores
         </CardTitle>
-        <Button variant="ghost" size="sm" render={<Link href="/quizzes" />}>
-          History
+        <Button variant="ghost" size="sm" asChild>
+          <Link href="/quizzes">History</Link>
         </Button>
       </CardHeader>
       <CardContent>
@@ -55,8 +55,8 @@ export function RecentQuizzes({
             title="No quizzes yet"
             description="Generate a quiz from your notes to start tracking scores."
             action={
-              <Button size="sm" render={<Link href="/quizzes/new" />}>
-                Generate a quiz
+              <Button size="sm" asChild>
+                <Link href="/quizzes/new">Generate a quiz</Link>
               </Button>
             }
           />

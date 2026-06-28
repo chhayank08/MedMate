@@ -11,8 +11,10 @@ export default function SummariesPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Summaries" description="All your AI-generated summaries and study materials.">
-        <Button render={<Link href="/summaries/new" />}>
-          <Plus className="size-4" /> New summary
+        <Button asChild>
+          <Link href="/summaries/new">
+            <Plus className="size-4" /> New summary
+          </Link>
         </Button>
       </PageHeader>
       <SummariesList />

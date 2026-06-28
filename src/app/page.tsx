@@ -97,10 +97,12 @@ export default function LandingPage() {
           <Logo />
           <nav className="hidden md:flex items-center gap-1 sm:gap-2">
             <ThemeToggle />
-            <Button variant="ghost" render={<Link href="/login" />}>
-              Sign in
+            <Button variant="ghost" asChild>
+              <Link href="/login">Sign in</Link>
             </Button>
-            <Button render={<Link href="/signup" />}>Get started</Button>
+            <Button asChild>
+              <Link href="/signup">Get started</Link>
+            </Button>
           </nav>
           <div className="flex items-center gap-2 md:hidden">
             <ThemeToggle />
