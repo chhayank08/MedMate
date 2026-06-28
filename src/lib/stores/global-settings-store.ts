@@ -424,15 +424,33 @@ export function useInitializeSettings() {
 // ─── Selector Hooks ─────────────────────────────────────────────────────────
 
 export function useActiveDomain() {
-  return useGlobalSettings(state => state.getActiveDomain());
+  return useGlobalSettings(state => {
+    const { domains, selectedDomainIds } = state;
+    if (!selectedDomainIds.length || !domains.length) return DEFAULT_DOMAIN;
+    
+    const activeDomain = domains.find(d => 
+      d.domain_id === selectedDomainIds[0]
+    );
+    
+    return activeDomain || DEFAULT_DOMAIN;
+  });
 }
 
 export function useActiveDomains() {
-  return useGlobalSettings(state => state.getActiveDomains());
+  return useGlobalSettings(state => {
+    const { domains, selectedDomainIds } = state;
+    if (!selectedDomainIds.length || !domains.length) return [DEFAULT_DOMAIN];
+    
+    const activeDomains = domains.filter(d => 
+      selectedDomainIds.includes(d.domain_id)
+    );
+    
+    return activeDomains.length > 0 ? activeDomains : [DEFAULT_DOMAIN];
+  });
 }
 
 export function useEnabledSubjects() {
-  return useGlobalSettings(state => state.getEnabledSubjects());
+  return useGlobalSettings(state => state.subjects.filter(s => s.enabled));
 }
 
 export function useDomainSelection() {
