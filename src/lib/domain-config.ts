@@ -4,7 +4,7 @@
  */
 
 import { DOMAIN_SUBJECTS } from "./constants";
-import { Briefcase, Wrench, BookOpen, Scale, Stethoscope, Flask, Laptop, LucideIcon } from 'lucide-react';
+import { Briefcase, Wrench, BookOpen, Scale, Stethoscope, FlaskConical, Laptop, LucideIcon } from 'lucide-react';
 
 export type DomainKey = keyof typeof DOMAIN_SUBJECTS;
 
@@ -86,7 +86,7 @@ export const DOMAIN_CONFIGS: Record<DomainKey, DomainConfig> = {
     id: "science",
     name: "Science",
     icon: "🔬",
-    iconComponent: Flask,
+    iconComponent: FlaskConical,
     color: "text-cyan-500",
     placeholders: {
       quizTopic: "Periodic table trends, Newton's laws",
