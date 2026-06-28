@@ -4,12 +4,12 @@
 -- ============================================================================
 
 -- Example: Grant lifetime membership to keerthisuga7@gmail.com
--- Replace the email with the actual user email
+-- This script automatically finds the user and grants lifetime access
 
--- Step 1: Find user ID by email
-SELECT id, email FROM auth.users WHERE email = 'keerthisuga7@gmail.com';
-
--- Step 2: Grant lifetime membership (copy the user_id from Step 1)
+-- Grant lifetime membership by email (single user)
+WITH user_lookup AS (
+  SELECT id FROM auth.users WHERE email = 'keerthisuga7@gmail.com'
+)
 INSERT INTO subscriptions (
   user_id,
   tier,
@@ -19,15 +19,15 @@ INSERT INTO subscriptions (
   stripe_customer_id,
   stripe_subscription_id
 )
-VALUES (
-  'USER_ID_FROM_STEP_1', -- Replace with actual user_id
+SELECT
+  id,
   'premium',
   NOW(),
-  NOW() + INTERVAL '100 years', -- Effectively lifetime
-  false, -- No auto-renew for lifetime members
+  NOW() + INTERVAL '100 years',
+  false,
   NULL,
   NULL
-)
+FROM user_lookup
 ON CONFLICT (user_id) 
 DO UPDATE SET
   tier = 'premium',
@@ -35,10 +35,13 @@ DO UPDATE SET
   auto_renew = false,
   updated_at = NOW();
 
--- Step 3: Verify the subscription was created/updated
-SELECT * FROM subscriptions WHERE user_id IN (
-  SELECT id FROM auth.users WHERE email = 'keerthisuga7@gmail.com'
-);
+-- Verify the subscription was created/updated
+SELECT 
+  s.*,
+  u.email
+FROM subscriptions s
+JOIN auth.users u ON u.id = s.user_id
+WHERE u.email = 'keerthisuga7@gmail.com';
 
 -- ============================================================================
 -- Batch Grant (Multiple Users)
