@@ -31,7 +31,7 @@ export function useDomainContext(options?: { refreshOnChange?: boolean }) {
     if (!activeDomain?.domain_id) return null;
     const domainKey = activeDomain.name.toLowerCase().replace(/\s+/g, '_') as DomainKey;
     return getDomainConfig(domainKey);
-  }, [activeDomain?.domain_id, activeDomain?.name]); // Use stable domain_id instead of entire object
+  }, [activeDomain?.domain_id]); // FIXED: Only depend on stable domain_id
 
   // Listen for domain changes and optionally trigger refresh
   useDomainListener((event) => {

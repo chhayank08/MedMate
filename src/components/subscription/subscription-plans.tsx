@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useSubscription } from "@/hooks/use-subscription";
-import { useSubscriptionStore } from "@/lib/stores/subscription-store";
+import { usePremiumStatus } from "@/hooks/use-premium";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Check, Sparkles, Crown, Zap, TrendingUp, Brain, FileText, Layers, X, PartyPopper, Loader2 } from "lucide-react";
 import { TIER_LIMITS, type SubscriptionTier } from "@/types/subscription.types";
@@ -150,10 +150,10 @@ function PlanCard({ tier, name, price, description, isCurrent, isPopular, featur
 
 export function SubscriptionPlans({ userId }: { userId?: string }) {
   const { subscription, usage, limits, isLoading } = useSubscription();
-  const subscriptionStore = useSubscriptionStore();
+  const { isPremium, isLifetime, tier, isInitialized } = usePremiumStatus();
 
-  // Wait for initialization before rendering to prevent flicker
-  if (isLoading || !subscriptionStore.isInitialized || !subscription) {
+  // CRITICAL: Wait for initialization before rendering to prevent flicker
+  if (isLoading || !isInitialized || !subscription) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center space-y-3">
@@ -164,9 +164,7 @@ export function SubscriptionPlans({ userId }: { userId?: string }) {
     );
   }
 
-  const currentTier = subscription.tier; // Safe: subscription guaranteed non-null
-  const isLifetime = currentTier === 'premium';
-  const isPro = currentTier === 'pro';
+  const currentTier = tier || 'free';
 
   const handleUpgrade = (tier: string) => {
     if (tier === currentTier) {

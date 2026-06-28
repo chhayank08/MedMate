@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/shared/page-header";
 import { QuizGenerator } from "@/components/quizzes/quiz-generator";
+import { GeneratorErrorBoundary } from "@/components/shared/generator-error-boundary";
 
 export const metadata: Metadata = { title: "Generate Quiz" };
 
@@ -11,7 +12,9 @@ export default function NewQuizPage() {
         title="AI Quiz Generator"
         description="Generate intelligent questions from your study materials and test your knowledge."
       />
-      <QuizGenerator />
+      <GeneratorErrorBoundary fallbackTitle="Quiz Generator Error">
+        <QuizGenerator />
+      </GeneratorErrorBoundary>
     </div>
   );
 }

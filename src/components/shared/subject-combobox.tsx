@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { Check, ChevronDown, Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DOMAIN_SUBJECTS } from "@/lib/constants";
@@ -59,9 +59,16 @@ export function SubjectCombobox({
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   
-  // Subscribe to active domain from global store (reactive)
+  // FIXED: Subscribe to stable domain_id only, not entire domain object
   const activeDomain = useActiveDomain();
-  const activeSubjects = getActiveSubjects(activeDomain?.name);
+  const activeDomainId = activeDomain?.domain_id;
+  const activeDomainName = activeDomain?.name;
+  
+  // Memoize subjects based on stable domain ID only
+  const activeSubjects = useMemo(
+    () => getActiveSubjects(activeDomainName),
+    [activeDomainId] // Only depend on ID, not name
+  );
 
   useEffect(() => {
     setCustomSubjects(loadCustomSubjects());
@@ -72,7 +79,7 @@ export function SubjectCombobox({
     if (clearAfterSelect) {
       setQuery("");
     }
-  }, [activeDomain, clearAfterSelect]);
+  }, [activeDomainId, clearAfterSelect]); // FIXED: Depend on stable ID
 
   // For single-select mode, keep query in sync with external value.
   useEffect(() => {

@@ -78,7 +78,7 @@ function SubjectTags({
 
 export function QuizGenerator() {
   const router = useRouter();
-  const { domainConfig, isReady } = useDomainContext();
+  const { domainConfig, isReady, activeDomain } = useDomainContext();
   const [mode, setMode] = useState<InputMode>("subject");
   const [title, setTitle] = useState("");
   const [subjects, setSubjects] = useState<string[]>([]);
@@ -96,12 +96,20 @@ export function QuizGenerator() {
   const hk = useHKActive();
   const bat = useBatActive();
   
-  // Get domain-specific placeholders
-  const placeholders = domainConfig?.placeholders || {
-    quizTopic: "ACE inhibitor side effects, Loop of Henle",
-    summaryTopic: "Cardiac physiology",
-    taskExample: "Review Pathology notes"
-  };
+  // CRITICAL: Guard against rendering before hydration completes
+  if (!isReady || !activeDomain || !domainConfig) {
+    return (
+      <Card>
+        <CardContent className="py-12 text-center">
+          <Loader2 className="size-8 animate-spin mx-auto text-primary mb-3" />
+          <p className="text-sm text-muted-foreground">Loading quiz generator...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+  
+  // Get domain-specific placeholders - now safe because guards passed
+  const placeholders = domainConfig.placeholders;
 
   function addSubject(value: string) {
     const trimmed = value.trim();

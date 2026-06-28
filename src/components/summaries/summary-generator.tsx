@@ -67,7 +67,7 @@ function SubjectTags({
 }
 
 export function SummaryGenerator() {
-  const { domainConfig } = useDomainContext();
+  const { domainConfig, isReady, activeDomain } = useDomainContext();
   const [mode, setMode] = useState<InputMode>("paste");
   const [type, setType] = useState<SummaryType>("revision");
   const [subjects, setSubjects] = useState<string[]>([]);
@@ -86,12 +86,25 @@ export function SummaryGenerator() {
   const savedRef = useRef(false);
   const abortRef = useRef<AbortController | null>(null);
   
-  // Get domain-specific placeholders
-  const placeholders = domainConfig?.placeholders || {
-    quizTopic: "ACE inhibitor side effects, Loop of Henle",
-    summaryTopic: "Cardiac physiology",
-    taskExample: "Review Pathology notes"
-  };
+  // CRITICAL: Guard against rendering before hydration completes
+  if (!isReady || !activeDomain || !domainConfig) {
+    return (
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card>
+          <CardContent className="py-12 text-center">
+            <Loader2 className="size-8 animate-spin mx-auto text-primary mb-3" />
+            <p className="text-sm text-muted-foreground">Loading summary generator...</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="py-12" />
+        </Card>
+      </div>
+    );
+  }
+  
+  // Get domain-specific placeholders - now safe because guards passed
+  const placeholders = domainConfig.placeholders;
 
   function addSubject(value: string) {
     const trimmed = value.trim();

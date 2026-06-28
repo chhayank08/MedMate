@@ -17,8 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { createClient } from "@/lib/supabase/client";
 import { getInitials } from "@/lib/utils";
-import { useSubscription } from "@/hooks/use-subscription";
-import { useSubscriptionStore } from "@/lib/stores/subscription-store";
+import { usePremiumStatus } from "@/hooks/use-premium";
 import { cn } from "@/lib/utils";
 
 export function UserMenu({
@@ -31,21 +30,11 @@ export function UserMenu({
   avatarUrl?: string | null;
 }) {
   const router = useRouter();
-  const { subscription, isLoading } = useSubscription();
-  const subscriptionStore = useSubscriptionStore();
+  const { isPremium, isLifetime, isInitialized } = usePremiumStatus();
   
-  // Wait for hydration before showing premium UI
-  if (!subscriptionStore.isInitialized || isLoading) {
-    return (
-      <Button variant="ghost" size="icon" className="rounded-full">
-        <Avatar className="size-8">
-          <AvatarFallback>{getInitials(name, email)}</AvatarFallback>
-        </Avatar>
-      </Button>
-    );
-  }
-  
-  const isLifetime = subscription?.tier === 'premium';
+  // CRITICAL: Wait for hydration before showing premium UI to prevent flicker
+  const showPremiumUI = isInitialized && (isPremium || isLifetime);
+  const showLifetimeUI = isInitialized && isLifetime;
 
   async function signOut() {
     const supabase = createClient();
@@ -65,14 +54,14 @@ export function UserMenu({
         <div className="relative">
           <Avatar className={cn(
             "size-8",
-            isLifetime && "ring-2 ring-yellow-500 ring-offset-2 ring-offset-background"
+            showLifetimeUI && "ring-2 ring-yellow-500 ring-offset-2 ring-offset-background"
           )}>
             {avatarUrl && <AvatarImage src={avatarUrl} alt={name ?? "User"} />}
-            <AvatarFallback className={isLifetime ? "bg-gradient-to-br from-yellow-400 to-amber-500 text-white" : ""}>
+            <AvatarFallback className={showLifetimeUI ? "bg-gradient-to-br from-yellow-400 to-amber-500 text-white" : ""}>
               {getInitials(name, email)}
             </AvatarFallback>
           </Avatar>
-          {isLifetime && (
+          {showLifetimeUI && (
             <div className="absolute -bottom-0.5 -right-0.5 size-4 rounded-full bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center ring-2 ring-background">
               <Crown className="size-2.5 text-white" />
             </div>
@@ -85,14 +74,14 @@ export function UserMenu({
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5">
                 <span className="truncate font-medium">{name ?? "Student"}</span>
-                {isLifetime && <Crown className="size-3.5 text-yellow-500 shrink-0" />}
+                {showLifetimeUI && <Crown className="size-3.5 text-yellow-500 shrink-0" />}
               </div>
               {email && (
                 <span className="truncate text-xs font-normal text-muted-foreground">
                   {email}
                 </span>
               )}
-              {isLifetime && (
+              {showLifetimeUI && (
                 <span className="text-xs font-medium text-yellow-600 dark:text-yellow-500 mt-1">
                   Lifetime Member
                 </span>

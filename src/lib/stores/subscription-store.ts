@@ -24,6 +24,8 @@ interface SubscriptionState {
   incrementUsage: (type: 'quiz' | 'summary') => void;
   getRemainingQuota: (type: 'domains' | 'subjects' | 'quizzes' | 'summaries') => number;
   getUsagePercentage: (type: 'domains' | 'subjects' | 'quizzes' | 'summaries') => number;
+  isPremium: () => boolean;
+  isLifetime: () => boolean;
 }
 
 export const useSubscriptionStore = create<SubscriptionState>()(
@@ -157,6 +159,16 @@ export const useSubscriptionStore = create<SubscriptionState>()(
         const { usage } = get();
         if (!usage) return 0;
         return (usage[type].current / usage[type].limit) * 100;
+      },
+
+      isPremium: () => {
+        const { subscription } = get();
+        return subscription?.tier === 'premium' || subscription?.tier === 'pro';
+      },
+
+      isLifetime: () => {
+        const { subscription } = get();
+        return subscription?.tier === 'premium' && subscription?.auto_renew === false;
       }
     }),
     {

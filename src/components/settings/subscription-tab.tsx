@@ -5,16 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useSubscription } from "@/hooks/use-subscription";
+import { usePremiumStatus } from "@/hooks/use-premium";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Check, Sparkles } from "lucide-react";
+import { Check, Sparkles, Crown } from "lucide-react";
 import { TIER_LIMITS, type SubscriptionTier } from "@/types/subscription.types";
 
 export function SubscriptionTab() {
   const { subscription, usage, limits, isLoading } = useSubscription();
+  const { isLifetime, tier: currentTier, isInitialized } = usePremiumStatus();
 
-  if (isLoading) return <Skeleton className="h-96 w-full rounded-xl" />;
+  if (isLoading || !isInitialized) return <Skeleton className="h-96 w-full rounded-xl" />;
 
-  const tier = subscription?.tier || 'free';
+  const tier = currentTier || 'free';
   const tierData = TIER_LIMITS[tier as SubscriptionTier];
 
   return (
@@ -25,12 +27,15 @@ export function SubscriptionTab() {
             <div>
               <CardTitle className="flex items-center gap-2">
                 Current Plan: {tier.charAt(0).toUpperCase() + tier.slice(1)}
-                {tier !== 'free' && <Badge variant="default"><Sparkles className="size-3" />Active</Badge>}
+                {isLifetime && <Crown className="size-5 text-yellow-500" />}
+                {tier !== 'free' && !isLifetime && <Badge variant="default"><Sparkles className="size-3" />Active</Badge>}
+                {isLifetime && <Badge className="bg-gradient-to-r from-yellow-400 to-amber-500">Lifetime</Badge>}
               </CardTitle>
               <CardDescription>
                 {tier === 'free' && "Upgrade to unlock more features"}
                 {tier === 'pro' && "Great for serious students"}
-                {tier === 'premium' && "Full access to all features"}
+                {tier === 'premium' && !isLifetime && "Full access to all features"}
+                {isLifetime && "You have lifetime access to all premium features!"}
               </CardDescription>
             </div>
             {tier === 'free' && (
@@ -46,15 +51,15 @@ export function SubscriptionTab() {
                   <span>Domains</span>
                   <span className="text-muted-foreground">{usage.domains.current} / {usage.domains.limit}</span>
                 </div>
-                <Progress value={(usage.domains.current / usage.domains.limit) * 100} />
+                <Progress value={(usage.domains.current / usage.domains.limit) * 100} className={isLifetime ? '[&>div]:bg-gradient-to-r [&>div]:from-yellow-400 [&>div]:to-amber-500' : ''} />
               </div>
 
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Subjects</span>
-                  <span className="text-muted-foreground">{usage.subjects.current} / {usage.subjects.limit}</span>
+                  <span className="text-muted-foreground">{usage.subjects.current} / {usage.subjects.limit === 10000 ? '∞' : usage.subjects.limit}</span>
                 </div>
-                <Progress value={(usage.subjects.current / usage.subjects.limit) * 100} />
+                <Progress value={usage.subjects.limit === 10000 ? 0 : (usage.subjects.current / usage.subjects.limit) * 100} className={isLifetime ? '[&>div]:bg-gradient-to-r [&>div]:from-yellow-400 [&>div]:to-amber-500' : ''} />
               </div>
 
               <div className="space-y-2">
@@ -62,7 +67,7 @@ export function SubscriptionTab() {
                   <span>Quizzes (this period)</span>
                   <span className="text-muted-foreground">{usage.quizzes.current} / {usage.quizzes.limit}</span>
                 </div>
-                <Progress value={(usage.quizzes.current / usage.quizzes.limit) * 100} />
+                <Progress value={(usage.quizzes.current / usage.quizzes.limit) * 100} className={isLifetime ? '[&>div]:bg-gradient-to-r [&>div]:from-yellow-400 [&>div]:to-amber-500' : ''} />
               </div>
 
               <div className="space-y-2">
@@ -70,7 +75,7 @@ export function SubscriptionTab() {
                   <span>Summaries (this period)</span>
                   <span className="text-muted-foreground">{usage.summaries.current} / {usage.summaries.limit}</span>
                 </div>
-                <Progress value={(usage.summaries.current / usage.summaries.limit) * 100} />
+                <Progress value={(usage.summaries.current / usage.summaries.limit) * 100} className={isLifetime ? '[&>div]:bg-gradient-to-r [&>div]:from-yellow-400 [&>div]:to-amber-500' : ''} />
               </div>
             </div>
           )}
