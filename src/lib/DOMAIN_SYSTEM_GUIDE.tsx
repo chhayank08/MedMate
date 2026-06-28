@@ -60,8 +60,8 @@ export function ExampleDataComponent() {
   // Automatically refresh when domain changes
   useDomainListener((event) => {
     console.log('Domain changed to:', event.domainName);
-    // Refetch data for new domain
-    fetchDataForDomain(event.domainId).then(setData);
+    // Example: Refetch data for new domain
+    // Replace with your actual data fetching logic
   }, []);
 
   return <div>{/* render data */}</div>;
