@@ -11,6 +11,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Check, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getDomainConfig } from '@/lib/domain-config';
 
 interface DomainSelectorProps {
   domains: Domain[];
@@ -86,6 +87,11 @@ export function DomainSelector({ domains, selectedDomains, onSelectionChange, ma
         try {
           const isSelected = validSelectedDomains.includes(domain.domain_id);
           const isDisabled = maxSelections > 1 && !isSelected && validSelectedDomains.length >= maxSelections;
+          
+          // Try to match domain name to config
+          const domainKey = domain.name.toLowerCase().replace(/\s+/g, '_');
+          const domainConfig = getDomainConfig(domainKey as any);
+          const IconComponent = domainConfig?.iconComponent;
 
           return (
             <Card
@@ -101,7 +107,12 @@ export function DomainSelector({ domains, selectedDomains, onSelectionChange, ma
               aria-pressed={isSelected}
               aria-disabled={isDisabled}
             >
-              <div className="flex items-start justify-between">
+              <div className="flex items-start gap-3">
+                {IconComponent && (
+                  <div className={cn("mt-1", domainConfig?.color)}>
+                    <IconComponent className="h-5 w-5" />
+                  </div>
+                )}
                 <div className="flex-1">
                   <h3 className="font-semibold">{domain.name || 'Unnamed Domain'}</h3>
                   {domain.description && <p className="text-sm text-muted-foreground mt-1">{domain.description}</p>}

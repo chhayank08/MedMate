@@ -4,6 +4,7 @@
  */
 
 import { DOMAIN_SUBJECTS } from "./constants";
+import { Briefcase, Wrench, BookOpen, Scale, Stethoscope, Flask, Laptop, LucideIcon } from 'lucide-react';
 
 export type DomainKey = keyof typeof DOMAIN_SUBJECTS;
 
@@ -11,6 +12,7 @@ export interface DomainConfig {
   id: DomainKey;
   name: string;
   icon: string;
+  iconComponent: LucideIcon;
   color: string;
   placeholders: {
     quizTopic: string;
@@ -24,6 +26,7 @@ export const DOMAIN_CONFIGS: Record<DomainKey, DomainConfig> = {
     id: "medical",
     name: "Medical",
     icon: "🩺",
+    iconComponent: Stethoscope,
     color: "text-red-500",
     placeholders: {
       quizTopic: "ACE inhibitor side effects, Loop of Henle",
@@ -35,6 +38,7 @@ export const DOMAIN_CONFIGS: Record<DomainKey, DomainConfig> = {
     id: "engineering",
     name: "Engineering",
     icon: "⚙️",
+    iconComponent: Wrench,
     color: "text-blue-500",
     placeholders: {
       quizTopic: "Bernoulli's equation, Stress-strain analysis",
@@ -46,6 +50,7 @@ export const DOMAIN_CONFIGS: Record<DomainKey, DomainConfig> = {
     id: "computer_science",
     name: "Computer Science",
     icon: "💻",
+    iconComponent: Laptop,
     color: "text-green-500",
     placeholders: {
       quizTopic: "Binary trees, Sorting algorithms, TCP/IP protocol",
@@ -57,6 +62,7 @@ export const DOMAIN_CONFIGS: Record<DomainKey, DomainConfig> = {
     id: "business",
     name: "Business",
     icon: "💼",
+    iconComponent: Briefcase,
     color: "text-purple-500",
     placeholders: {
       quizTopic: "Porter's Five Forces, SWOT analysis",
@@ -68,6 +74,7 @@ export const DOMAIN_CONFIGS: Record<DomainKey, DomainConfig> = {
     id: "law",
     name: "Law",
     icon: "⚖️",
+    iconComponent: Scale,
     color: "text-amber-500",
     placeholders: {
       quizTopic: "Contract formation elements, Tort liability",
@@ -79,11 +86,24 @@ export const DOMAIN_CONFIGS: Record<DomainKey, DomainConfig> = {
     id: "science",
     name: "Science",
     icon: "🔬",
+    iconComponent: Flask,
     color: "text-cyan-500",
     placeholders: {
       quizTopic: "Periodic table trends, Newton's laws",
       summaryTopic: "Cellular respiration",
       taskExample: "Lab report analysis",
+    },
+  },
+  humanities: {
+    id: "humanities",
+    name: "Humanities",
+    icon: "📚",
+    iconComponent: BookOpen,
+    color: "text-pink-500",
+    placeholders: {
+      quizTopic: "Renaissance art, World War II events",
+      summaryTopic: "Shakespearean themes",
+      taskExample: "Read chapter on ancient civilizations",
     },
   },
 };

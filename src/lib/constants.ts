@@ -117,6 +117,10 @@ export const DOMAIN_SUBJECTS: Record<string, readonly string[]> = {
     "Physics", "Chemistry", "Biology", "Mathematics", "Astronomy",
     "Environmental Science", "Geology", "Organic Chemistry"
   ],
+  humanities: [
+    "Literature", "History", "Philosophy", "Art History", "Music Theory",
+    "Cultural Studies", "Linguistics", "Religious Studies"
+  ],
 } as const;
 
 /** Legacy medical subjects for backward compatibility */
