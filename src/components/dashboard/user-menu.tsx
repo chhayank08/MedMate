@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { LogOut, Settings, User as UserIcon, Crown } from "lucide-react";
@@ -31,10 +32,16 @@ export function UserMenu({
 }) {
   const router = useRouter();
   const { isPremium, isLifetime, isInitialized } = usePremiumStatus();
+  const [mounted, setMounted] = useState(false);
   
-  // CRITICAL: Wait for hydration before showing premium UI to prevent flicker
-  const showPremiumUI = isInitialized && (isPremium || isLifetime);
-  const showLifetimeUI = isInitialized && isLifetime;
+  // CRITICAL: Wait for mount to prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
+  // CRITICAL: Only show premium UI after mount AND hydration to prevent flicker
+  const showPremiumUI = mounted && isInitialized && (isPremium || isLifetime);
+  const showLifetimeUI = mounted && isInitialized && isLifetime;
 
   async function signOut() {
     const supabase = createClient();

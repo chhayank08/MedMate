@@ -26,12 +26,12 @@ export function useDomainContext(options?: { refreshOnChange?: boolean }) {
   const isInitialized = useGlobalSettings(state => state.isInitialized);
   const selectedDomainIds = useGlobalSettings(state => state.selectedDomainIds);
   
-  // Get domain configuration for the active domain - use stable domain ID for memoization
+  // Get domain configuration for the active domain - STABLE memoization
   const domainConfig = useMemo(() => {
     if (!activeDomain?.domain_id) return null;
     const domainKey = activeDomain.name.toLowerCase().replace(/\s+/g, '_') as DomainKey;
     return getDomainConfig(domainKey);
-  }, [activeDomain?.domain_id]); // FIXED: Only depend on stable domain_id
+  }, [activeDomain?.domain_id, activeDomain?.name]); // FIXED: Include both id and name
 
   // Listen for domain changes and optionally trigger refresh
   useDomainListener((event) => {

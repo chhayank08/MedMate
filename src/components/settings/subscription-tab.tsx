@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +14,16 @@ import { TIER_LIMITS, type SubscriptionTier } from "@/types/subscription.types";
 export function SubscriptionTab() {
   const { subscription, usage, limits, isLoading } = useSubscription();
   const { isLifetime, tier: currentTier, isInitialized } = usePremiumStatus();
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
+  // CRITICAL: Wait for mount to prevent hydration mismatch
+  if (!mounted) {
+    return <Skeleton className="h-96 w-full rounded-xl" />;
+  }
 
   if (isLoading || !isInitialized) return <Skeleton className="h-96 w-full rounded-xl" />;
 

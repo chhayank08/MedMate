@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -151,8 +152,25 @@ function PlanCard({ tier, name, price, description, isCurrent, isPopular, featur
 export function SubscriptionPlans({ userId }: { userId?: string }) {
   const { subscription, usage, limits, isLoading } = useSubscription();
   const { isPremium, isLifetime, tier, isInitialized } = usePremiumStatus();
+  const [isMounted, setIsMounted] = useState(false);
 
-  // CRITICAL: Wait for initialization before rendering to prevent flicker
+  // Prevent hydration mismatch by only rendering after mount
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // CRITICAL: Wait for mount AND initialization before rendering premium UI
+  if (!isMounted) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center space-y-3">
+          <Loader2 className="size-8 animate-spin mx-auto text-primary" />
+          <p className="text-sm text-muted-foreground">Loading subscription details...</p>
+        </div>
+      </div>
+    );
+  }
+  
   if (isLoading || !isInitialized || !subscription) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
