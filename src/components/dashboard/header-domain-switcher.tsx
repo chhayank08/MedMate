@@ -69,23 +69,31 @@ export function HeaderDomainSwitcher() {
 
     startTransition(async () => {
       try {
-        const isSelected = selectedDomainIds.includes(domainId);
         const maxDomains = limits?.domains || 1;
+        const isCurrentlyActive = selectedDomainIds.includes(domainId);
+        
+        // For free users: Don't allow deselecting if it's the only domain
+        if (maxDomains === 1 && isCurrentlyActive) {
+          toast.info("This is your active domain");
+          return;
+        }
+        
         let newSelection: string[];
 
-        if (isSelected) {
-          // Must keep at least one domain
-          if (selectedDomainIds.length <= 1) {
-            toast.error("You must have at least one domain selected");
-            return;
-          }
-          newSelection = selectedDomainIds.filter(id => id !== domainId);
+        if (maxDomains === 1) {
+          // Free users: Always replace with the new selection (switch domain)
+          newSelection = [domainId];
         } else {
-          // For free users (maxDomains === 1), replace the current domain
-          if (maxDomains === 1) {
-            newSelection = [domainId];
+          // Premium users: Multi-select toggle logic
+          if (isCurrentlyActive) {
+            // Remove domain (keep at least one)
+            if (selectedDomainIds.length <= 1) {
+              toast.error("You must have at least one domain selected");
+              return;
+            }
+            newSelection = selectedDomainIds.filter(id => id !== domainId);
           } else {
-            // For paid users, check limit and add
+            // Add domain (check limit)
             if (selectedDomainIds.length >= maxDomains) {
               toast.error(`Domain limit reached (${maxDomains}). Upgrade to add more.`);
               return;
@@ -198,19 +206,20 @@ export function HeaderDomainSwitcher() {
           <div className="p-1">
             {filteredDomains.length > 0 ? (
               filteredDomains.map((domain) => {
-                const isSelected = selectedDomainIds.includes(domain.domain_id);
-                const isDisabled = !isSelected && selectedCount >= maxDomains;
+                const isActive = selectedDomainIds.includes(domain.domain_id);
+                // Only disable for premium users who reached their limit (not for free users)
+                const isDisabled = maxDomains > 1 && !isActive && selectedCount >= maxDomains;
 
                 return (
                   <button
                     key={domain.domain_id}
-                    onClick={() => !isDisabled && handleSelect(domain.domain_id)}
+                    onClick={() => handleSelect(domain.domain_id)}
                     disabled={isDisabled}
                     className={cn(
                       "flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors",
                       "hover:bg-accent hover:text-accent-foreground",
                       "disabled:pointer-events-none disabled:opacity-50",
-                      isSelected && "bg-accent/50"
+                      isActive && "bg-accent/50"
                     )}
                   >
                     {(() => {
@@ -234,7 +243,7 @@ export function HeaderDomainSwitcher() {
                         </div>
                       )}
                     </div>
-                    {isSelected && (
+                    {isActive && (
                       <Check className="h-4 w-4 text-primary shrink-0" />
                     )}
                   </button>
