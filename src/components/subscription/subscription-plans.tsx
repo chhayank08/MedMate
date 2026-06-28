@@ -165,6 +165,7 @@ export function SubscriptionPlans({ userId }: { userId?: string }) {
   }
 
   const currentTier = tier || 'free';
+  const isPro = currentTier === 'pro';
 
   const handleUpgrade = (tier: string) => {
     if (tier === currentTier) {

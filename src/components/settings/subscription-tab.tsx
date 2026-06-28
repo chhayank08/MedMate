@@ -97,7 +97,7 @@ export function SubscriptionTab() {
                 <CardDescription>
                   {planTier === 'free' && "$0/month"}
                   {planTier === 'pro' && "$9.99/month"}
-                  {planTier === 'premium' && "$19.99/month"}
+                  {planTier === 'premium' && "$199 lifetime"}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
