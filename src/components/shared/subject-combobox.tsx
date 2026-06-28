@@ -59,27 +59,27 @@ export function SubjectCombobox({
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   
-  // FIXED: Subscribe to stable domain_id only, not entire domain object
+  // STABLE: Subscribe to stable domain_id only, not entire domain object
   const activeDomain = useActiveDomain();
   const activeDomainId = activeDomain?.domain_id;
   const activeDomainName = activeDomain?.name;
   
-  // Memoize subjects based on stable domain ID only
+  // STABLE: Memoize subjects based on domain ID only (primitive)
   const activeSubjects = useMemo(
     () => getActiveSubjects(activeDomainName),
-    [activeDomainId] // Only depend on ID, not name
+    [activeDomainId] // ONLY primitive dependency
   );
 
   useEffect(() => {
     setCustomSubjects(loadCustomSubjects());
   }, []);
   
-  // Listen for domain changes and reset query if needed
+  // Listen for domain changes and reset query
   useEffect(() => {
     if (clearAfterSelect) {
       setQuery("");
     }
-  }, [activeDomainId, clearAfterSelect]); // FIXED: Depend on stable ID
+  }, [activeDomainId, clearAfterSelect]); // ONLY primitive ID
 
   // For single-select mode, keep query in sync with external value.
   useEffect(() => {

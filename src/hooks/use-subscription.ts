@@ -1,31 +1,42 @@
 // ============================================================================
-// useSubscription Hook - Task 11.2
+// useSubscription Hook - STABLE PRIMITIVE SELECTORS
 // Requirements: 6.5, 6.6, 15.5, 15.6
 // ============================================================================
 
-import { useQuery } from '@tanstack/react-query';
 import { useSubscriptionStore } from '@/lib/stores/subscription-store';
 import { ActionType } from '@/types/subscription.types';
+import { useEffect } from 'react';
 
+/**
+ * STABLE subscription hook using ONLY primitive selectors
+ * Prevents infinite rerenders by avoiding object recreation
+ */
 export function useSubscription() {
-  const store = useSubscriptionStore();
+  // STABLE primitive selectors - no object creation
+  const loadSubscription = useSubscriptionStore(state => state.loadSubscription);
+  const subscription = useSubscriptionStore(state => state.subscription);
+  const usage = useSubscriptionStore(state => state.usage);
+  const limits = useSubscriptionStore(state => state.limits);
+  const isLoading = useSubscriptionStore(state => state.isLoading);
+  const isInitialized = useSubscriptionStore(state => state.isInitialized);
+  const checkLimit = useSubscriptionStore(state => state.checkLimit);
+  const getRemainingQuota = useSubscriptionStore(state => state.getRemainingQuota);
+  const getUsagePercentage = useSubscriptionStore(state => state.getUsagePercentage);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['subscription'],
-    queryFn: async () => {
-      await store.loadSubscription();
-      return { subscription: store.subscription, usage: store.usage, limits: store.limits };
-    },
-    staleTime: 2 * 60 * 1000
-  });
+  // Load on mount ONCE
+  useEffect(() => {
+    if (!isInitialized) {
+      loadSubscription();
+    }
+  }, [isInitialized, loadSubscription]);
 
   const canPerformAction = (action: ActionType): boolean => {
-    const result = store.checkLimit(action);
+    const result = checkLimit(action);
     return result?.allowed ?? false;
   };
 
   const getUpgradePrompt = (action: ActionType) => {
-    const result = store.checkLimit(action);
+    const result = checkLimit(action);
     if (!result || result.allowed) return null;
     
     return {
@@ -38,13 +49,14 @@ export function useSubscription() {
   };
 
   return {
-    subscription: data?.subscription,
-    usage: data?.usage,
-    limits: data?.limits,
+    subscription,
+    usage,
+    limits,
     isLoading,
+    isInitialized,
     canPerformAction,
     getUpgradePrompt,
-    getRemainingQuota: store.getRemainingQuota,
-    getUsagePercentage: store.getUsagePercentage
+    getRemainingQuota,
+    getUsagePercentage
   };
 }

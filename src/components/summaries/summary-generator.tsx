@@ -68,6 +68,14 @@ function SubjectTags({
 
 export function SummaryGenerator() {
   const { domainConfig, isReady, activeDomain } = useDomainContext();
+  
+  // STABLE placeholders - memoized to prevent recreation
+  const placeholders = useMemo(() => domainConfig?.placeholders ?? {
+    quizTopic: 'Biology topics',
+    summaryTopic: 'Science concepts',
+    taskExample: 'Study notes'
+  }, [domainConfig]);
+  
   const [mode, setMode] = useState<InputMode>("paste");
   const [type, setType] = useState<SummaryType>("revision");
   const [subjects, setSubjects] = useState<string[]>([]);
@@ -102,9 +110,6 @@ export function SummaryGenerator() {
       </div>
     );
   }
-  
-  // Get domain-specific placeholders - now safe because guards passed
-  const placeholders = domainConfig.placeholders;
 
   function addSubject(value: string) {
     const trimmed = value.trim();
