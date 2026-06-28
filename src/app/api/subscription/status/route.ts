@@ -13,15 +13,6 @@ export async function GET() {
     if (!auth.ok) return auth.response;
     const { user, supabase } = auth;
 
-    // Check if user is a lifetime member (hardcoded list)
-    const LIFETIME_MEMBERS = [
-      'keerthisuga7@gmail.com'
-    ];
-    
-    const { data: userData } = await supabase.auth.getUser();
-    const userEmail = userData?.user?.email;
-    const isLifetimeMember = userEmail && LIFETIME_MEMBERS.includes(userEmail.toLowerCase());
-
     // Fetch subscription from database (ONLY SOURCE OF TRUTH)
     const { data: subscription, error: subError } = await supabase
       .from('subscriptions')
@@ -37,32 +28,8 @@ export async function GET() {
     const validTiers = ['free', 'pro', 'premium'];
     let tier: 'free' | 'pro' | 'premium' = 'free';
     
-    // Override with premium for lifetime members
-    if (isLifetimeMember) {
-      tier = 'premium';
-      console.log(`[Subscription API] Lifetime member detected: ${userEmail}`);
-      
-      // Ensure subscription record exists in database
-      if (!subscription || subscription.tier !== 'premium') {
-        const { error: upsertError } = await supabase
-          .from('subscriptions')
-          .upsert({
-            user_id: user.id,
-            tier: 'premium',
-            billing_period_start: subscription?.billing_period_start || new Date().toISOString(),
-            billing_period_end: new Date(Date.now() + 100 * 365 * 24 * 60 * 60 * 1000).toISOString(),
-            auto_renew: false,
-            stripe_customer_id: subscription?.stripe_customer_id || null,
-            stripe_subscription_id: subscription?.stripe_subscription_id || null
-          }, { onConflict: 'user_id' });
-        
-        if (upsertError) {
-          console.error('[Subscription API] Error updating lifetime member subscription:', upsertError);
-        } else {
-          console.log('[Subscription API] Lifetime member subscription updated to premium');
-        }
-      }
-    } else if (subscription && validTiers.includes(subscription.tier)) {
+    // Use database tier directly - no hardcoded overrides
+    if (subscription && validTiers.includes(subscription.tier)) {
       tier = subscription.tier as 'free' | 'pro' | 'premium';
     }
     
@@ -90,6 +57,9 @@ export async function GET() {
 
     const billingPeriodEnd = subscription?.billing_period_end || 
       new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+
+    // Check if this is a lifetime/premium member based on billing end date
+    const isLifetimeMember = tier === 'premium' && subscription?.auto_renew === false;
 
     return NextResponse.json({
       success: true,

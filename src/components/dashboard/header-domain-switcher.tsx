@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Check, Layers, Loader2, ChevronDown, Search, Sparkles } from "lucide-react";
 import {
   Popover,
@@ -21,6 +22,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 
 export function HeaderDomainSwitcher() {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [mounted, setMounted] = useState(false);
@@ -92,6 +94,7 @@ export function HeaderDomainSwitcher() {
           }
         }
 
+        // Update global store (triggers Zustand reactivity)
         await selectDomains(newSelection);
         const domainName = allDomains.find(d => d.domain_id === domainId)?.name;
         
@@ -99,7 +102,7 @@ export function HeaderDomainSwitcher() {
         setOpen(false);
         setSearch("");
         
-        // Trigger global events for cross-component updates
+        // Broadcast domain change events for reactive client components
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new CustomEvent('domain-changed', { 
             detail: { domainId, domainName } 
@@ -107,10 +110,10 @@ export function HeaderDomainSwitcher() {
           window.dispatchEvent(new CustomEvent('global-domain-updated', { 
             detail: { domainIds: newSelection } 
           }));
-          
-          // Force page refresh to update all domain-dependent content
-          setTimeout(() => window.location.reload(), 100);
         }
+        
+        // Refresh server components (dashboard, etc.) without full page reload
+        router.refresh();
         
         toast.success(`Switched to ${domainName || 'selected domain'}`);
       } catch (error) {
@@ -118,7 +121,7 @@ export function HeaderDomainSwitcher() {
         toast.error("Failed to update domains");
       }
     });
-  }, [mounted, isPending, selectedDomainIds, limits, selectDomains, allDomains]);
+  }, [mounted, isPending, selectedDomainIds, limits, selectDomains, allDomains, router]);
 
   const isLoading = domainsLoading || settingsLoading || !mounted || !isInitialized || isPending;
   const maxDomains = limits?.domains || 1;
