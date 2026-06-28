@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { useGlobalSettings } from "@/lib/stores/global-settings-store";
+import { useGlobalSettings, useActiveDomain } from "@/lib/stores/global-settings-store";
 import { useDomains } from "@/hooks/use-domains";
 import { useSubscription } from "@/hooks/use-subscription";
 import { getDomainConfig } from "@/lib/domain-config";
@@ -31,13 +31,14 @@ export function HeaderDomainSwitcher() {
   const { predefinedDomains, customDomains, isLoading: domainsLoading } = useDomains();
   const { limits } = useSubscription();
   const {
-    domains: storeDomains,
     selectedDomainIds,
     selectDomains,
     isLoading: settingsLoading,
     isInitialized,
-    getActiveDomain
   } = useGlobalSettings();
+  
+  // Subscribe directly to active domain from store for instant updates
+  const activeDomain = useActiveDomain();
 
   useEffect(() => {
     setMounted(true);
@@ -58,11 +59,6 @@ export function HeaderDomainSwitcher() {
       d.description?.toLowerCase().includes(query)
     );
   }, [allDomains, search]);
-
-  const activeDomain = useMemo(() => {
-    if (!mounted || !isInitialized) return null;
-    return getActiveDomain();
-  }, [mounted, isInitialized, getActiveDomain]);
 
   const handleSelect = useCallback(async (domainId: string) => {
     if (!mounted || isPending) return;

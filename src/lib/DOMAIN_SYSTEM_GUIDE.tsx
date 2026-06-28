@@ -45,7 +45,7 @@ export function ExampleComponent() {
   return (
     <div>
       <h1>Active Domain: {activeDomain.name}</h1>
-      <p>Quiz placeholder: {placeholders.quizTopic}</p>
+      <p>Quiz placeholder: {placeholders?.quizTopic || 'N/A'}</p>
     </div>
   );
 }
