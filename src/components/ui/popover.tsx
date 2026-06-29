@@ -17,8 +17,15 @@ function PopoverTrigger({ asChild, children, ...props }: PopoverPrimitive.Trigge
         data-slot="popover-trigger" 
         render={(triggerProps) => {
           if (React.isValidElement(children)) {
-            return React.cloneElement(children, { ...triggerProps, ...children.props });
+            return React.cloneElement(
+              children as React.ReactElement<Record<string, any>>,
+              {
+                ...triggerProps,
+                ...(children.props as Record<string, any>),
+              }
+            );
           }
+
           return <button {...triggerProps}>{children}</button>;
         }}
         {...props} 

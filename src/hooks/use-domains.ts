@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 import { useMemo } from 'react';
 
 // Stable empty arrays
-const EMPTY_DOMAINS: Domain[] = Object.freeze([]);
+const EMPTY_DOMAINS = Object.freeze([]) as readonly Domain[];
 
 export function useDomains() {
   const queryClient = useQueryClient();
@@ -113,8 +113,8 @@ export function useDomains() {
     }
   });
 
-  const predefinedDomains = useMemo(() => data?.predefined ?? EMPTY_DOMAINS, [data?.predefined]);
-  const customDomains = useMemo(() => data?.custom ?? EMPTY_DOMAINS, [data?.custom]);
+  const predefinedDomains = useMemo(() => data?.predefined ?? EMPTY_DOMAINS as Domain[], [data?.predefined]);
+  const customDomains = useMemo(() => data?.custom ?? EMPTY_DOMAINS as Domain[], [data?.custom]);
 
   return {
     predefinedDomains,

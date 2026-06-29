@@ -5,8 +5,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { useSubscription, useSubscriptionReady } from "@/hooks/use-subscription";
-import { usePremiumStatus } from "@/hooks/use-premium";
+import { useSubscription } from "@/hooks/use-subscription";
+import { useSubscriptionStatus } from "@/hooks/use-subscription-status";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Check, Sparkles, Crown, Zap, TrendingUp, Brain, FileText, Layers, X, PartyPopper, Loader2 } from "lucide-react";
 import { TIER_LIMITS, type SubscriptionTier } from "@/types/subscription.types";
@@ -150,16 +150,16 @@ function PlanCard({ tier, name, price, description, isCurrent, isPopular, featur
 }
 
 export function SubscriptionPlans({ userId }: { userId?: string }) {
-  const { subscription, usage, limits, isLoading, isInitialized: subInitialized } = useSubscription();
-  const { isPremium, isLifetime, tier, isInitialized: premiumInitialized } = usePremiumStatus();
+  const { usage, limits } = useSubscription();
+  const { isReady, tier, isPremium, isLifetime } = useSubscriptionStatus();
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // CRITICAL: Separate hydration loading from missing data
-  if (!isMounted || !subInitialized || !premiumInitialized) {
+  // CRITICAL: Wait for mount AND subscription ready
+  if (!isMounted || !isReady) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center space-y-3">
@@ -169,19 +169,8 @@ export function SubscriptionPlans({ userId }: { userId?: string }) {
       </div>
     );
   }
-  
-  // After hydration, handle missing subscription
-  if (!subscription) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center space-y-3">
-          <p className="text-sm text-muted-foreground">Unable to load subscription. Please refresh.</p>
-        </div>
-      </div>
-    );
-  }
 
-  const currentTier = tier || 'free';
+  const currentTier = tier;
   const isPro = currentTier === 'pro';
 
   const handleUpgrade = (tier: string) => {

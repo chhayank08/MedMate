@@ -22,14 +22,14 @@ const DEFAULT_DOMAIN: Domain = {
 };
 
 // Stable array constant to prevent infinite renders
-const DEFAULT_DOMAIN_ARRAY = Object.freeze([DEFAULT_DOMAIN]);
-const EMPTY_ARRAY: Domain[] = Object.freeze([]);
+const DEFAULT_DOMAIN_ARRAY = Object.freeze([DEFAULT_DOMAIN]) as readonly Domain[];
+const EMPTY_ARRAY = Object.freeze([]) as readonly Domain[];
 
 // Helper function for stable domain filtering
 function getActiveDomains(
   domains: Domain[],
   selectedDomainIds: string[]
-): Domain[] {
+): readonly Domain[] {
   if (!selectedDomainIds.length || !domains.length) {
     return DEFAULT_DOMAIN_ARRAY;
   }
@@ -90,7 +90,7 @@ interface GlobalSettingsState {
   
   // Getters
   getActiveDomain: () => Domain;
-  getActiveDomains: () => Domain[];
+  getActiveDomains: () => readonly Domain[];
   getEnabledSubjects: () => SubjectWithDomain[];
   isReady: () => boolean;
 }
@@ -465,7 +465,11 @@ export function useActiveDomains() {
 }
 
 export function useEnabledSubjects() {
-  return useGlobalSettings(state => state.subjects.filter(s => s.enabled));
+  const subjects = useGlobalSettings(state => state.subjects);
+  
+  return useMemo(() => {
+    return subjects.filter(s => s.enabled);
+  }, [subjects]);
 }
 
 export function useDomainSelection() {
@@ -473,5 +477,9 @@ export function useDomainSelection() {
   const selectedDomainIds = useGlobalSettings(state => state.selectedDomainIds);
   const isLoading = useGlobalSettings(state => state.isLoading);
   
-  return { selectDomains, selectedDomainIds, isLoading };
+  return useMemo(() => ({ 
+    selectDomains, 
+    selectedDomainIds, 
+    isLoading 
+  }), [selectDomains, selectedDomainIds, isLoading]);
 }

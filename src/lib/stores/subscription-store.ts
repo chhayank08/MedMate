@@ -176,29 +176,39 @@ export const useSubscriptionStore = create<SubscriptionState>()(
       partialize: (state) => ({
         subscription: state.subscription,
         limits: state.limits,
+        isInitialized: state.isInitialized,
         lastSyncedAt: state.lastSyncedAt,
       }),
       onRehydrateStorage: () => {
-        console.log('[SubscriptionStore] Rehydrating from localStorage...');
+        console.log('[SubscriptionStore] Starting hydration...');
         return (state, error) => {
           if (error) {
             console.error('[SubscriptionStore] Hydration error:', error);
-          } else if (state) {
-            // Convert lastSyncedAt from string to Date if needed
-            if (state.lastSyncedAt && typeof state.lastSyncedAt === 'string') {
-              state.lastSyncedAt = new Date(state.lastSyncedAt);
-            }
-            
-            console.log('[SubscriptionStore] Hydrated successfully:', {
-              tier: state.subscription?.tier,
-              initialized: state.isInitialized,
+            return;
+          }
+          
+          if (!state) {
+            console.warn('[SubscriptionStore] No state to hydrate');
+            return;
+          }
+          
+          // Convert lastSyncedAt from string to Date if needed
+          if (state.lastSyncedAt && typeof state.lastSyncedAt === 'string') {
+            state.lastSyncedAt = new Date(state.lastSyncedAt);
+          }
+          
+          // CRITICAL: If we have cached subscription, mark as initialized immediately
+          // This prevents free-tier UI from flashing before premium UI renders
+          if (state.subscription) {
+            state.isInitialized = true;
+            console.log('[SubscriptionStore] ✅ Hydrated with cached subscription:', {
+              tier: state.subscription.tier,
+              autoRenew: state.subscription.auto_renew,
+              isLifetime: state.subscription.tier === 'premium' && state.subscription.auto_renew === false,
               lastSynced: state.lastSyncedAt
             });
-            
-            // CRITICAL: Mark as initialized if we have cached subscription data
-            if (state.subscription) {
-              state.isInitialized = true;
-            }
+          } else {
+            console.log('[SubscriptionStore] Hydrated but no cached subscription - will load fresh');
           }
         };
       },

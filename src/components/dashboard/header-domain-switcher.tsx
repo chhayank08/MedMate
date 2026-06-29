@@ -62,39 +62,44 @@ export function HeaderDomainSwitcher() {
         const maxDomains = limits?.domains || 1;
         const isCurrentlyActive = selectedDomainIds.includes(domainId);
         
-        // For free users: Don't allow deselecting if it's the only domain
-        if (maxDomains === 1 && isCurrentlyActive) {
-          toast.info("This is your active domain");
-          return;
-        }
-        
         let newSelection: string[];
+        let actionMessage = '';
 
-        if (maxDomains === 1) {
-          // Free users: Always replace with the new selection (switch domain)
-          newSelection = [domainId];
-        } else {
-          // Premium users: Multi-select toggle logic
-          if (isCurrentlyActive) {
-            // Remove domain (keep at least one)
-            if (selectedDomainIds.length <= 1) {
-              toast.error("You must have at least one domain selected");
-              return;
-            }
-            newSelection = selectedDomainIds.filter(id => id !== domainId);
-          } else {
-            // Add domain (check limit)
+        // Handle deselection (clicking an already selected domain)
+        if (isCurrentlyActive) {
+          // Must keep at least one domain selected
+          if (selectedDomainIds.length <= 1) {
+            toast.error("You must have at least one domain selected");
+            return;
+          }
+          
+          // Remove the domain
+          newSelection = selectedDomainIds.filter(id => id !== domainId);
+          const domainName = allDomains.find(d => d.domain_id === domainId)?.name;
+          actionMessage = `Removed ${domainName || 'domain'}`;
+        } 
+        // Handle selection (clicking an unselected domain)
+        else {
+          // For free users (1 domain limit): Replace current selection
+          if (maxDomains === 1) {
+            newSelection = [domainId];
+            const domainName = allDomains.find(d => d.domain_id === domainId)?.name;
+            actionMessage = `Switched to ${domainName || 'domain'}`;
+          } 
+          // For premium users: Add domain (check limit)
+          else {
             if (selectedDomainIds.length >= maxDomains) {
-              toast.error(`Domain limit reached (${maxDomains}). Upgrade to add more.`);
+              toast.error(`Domain limit reached (${maxDomains}). Upgrade for more domains.`);
               return;
             }
             newSelection = [...selectedDomainIds, domainId];
+            const domainName = allDomains.find(d => d.domain_id === domainId)?.name;
+            actionMessage = `Added ${domainName || 'domain'}`;
           }
         }
 
-        // Update global store (triggers Zustand reactivity)
+        // Update global store (triggers instant Zustand reactivity)
         await selectDomains(newSelection);
-        const domainName = allDomains.find(d => d.domain_id === domainId)?.name;
         
         // Close popover and clear search
         setOpen(false);
@@ -102,21 +107,24 @@ export function HeaderDomainSwitcher() {
         
         // Broadcast domain change events for reactive client components
         if (typeof window !== 'undefined') {
+          const primaryDomainId = newSelection[0];
+          const primaryDomainName = allDomains.find(d => d.domain_id === primaryDomainId)?.name;
+          
           window.dispatchEvent(new CustomEvent('domain-changed', { 
-            detail: { domainId, domainName } 
+            detail: { domainId: primaryDomainId, domainName: primaryDomainName } 
           }));
           window.dispatchEvent(new CustomEvent('global-domain-updated', { 
             detail: { domainIds: newSelection } 
           }));
         }
         
-        toast.success(`Switched to ${domainName || 'selected domain'}`);
+        toast.success(actionMessage);
       } catch (error) {
         console.error("[HeaderDomainSwitcher] Selection error:", error);
         toast.error("Failed to update domains");
       }
     });
-  }, [isPending, selectedDomainIds, limits, selectDomains, allDomains, router]);
+  }, [isPending, selectedDomainIds, limits, selectDomains, allDomains]);
 
   const isLoading = domainsLoading || settingsLoading || !isInitialized || isPending;
   const maxDomains = limits?.domains || 1;
@@ -192,8 +200,9 @@ export function HeaderDomainSwitcher() {
             {filteredDomains.length > 0 ? (
               filteredDomains.map((domain) => {
                 const isActive = selectedDomainIds.includes(domain.domain_id);
-                // Only disable for premium users who reached their limit (not for free users)
-                const isDisabled = maxDomains > 1 && !isActive && selectedCount >= maxDomains;
+                const canAdd = !isActive && selectedCount < maxDomains;
+                const canRemove = isActive && selectedCount > 1;
+                const isDisabled = !isActive && selectedCount >= maxDomains;
 
                 return (
                   <button

@@ -18,7 +18,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { createClient } from "@/lib/supabase/client";
 import { getInitials } from "@/lib/utils";
-import { usePremiumStatus } from "@/hooks/use-premium";
+import { useIsLifetime, useIsPremium } from "@/hooks/use-subscription-status";
+import { useSubscriptionStore } from "@/lib/stores/subscription-store";
 import { cn } from "@/lib/utils";
 
 export function UserMenu({
@@ -31,16 +32,21 @@ export function UserMenu({
   avatarUrl?: string | null;
 }) {
   const router = useRouter();
-  const { isPremium, isLifetime, isInitialized } = usePremiumStatus();
+  
+  // Use lightweight hooks for optimal performance
+  const isLifetime = useIsLifetime();
+  const isPremium = useIsPremium();
+  const isInitialized = useSubscriptionStore(state => state.isInitialized);
+  
   const [mounted, setMounted] = useState(false);
   
-  // CRITICAL: Wait for mount to prevent hydration mismatch
   useEffect(() => {
     setMounted(true);
   }, []);
   
-  // CRITICAL: Only show premium UI after mount AND hydration to prevent flicker
-  const showPremiumUI = mounted && isInitialized && (isPremium || isLifetime);
+  // CRITICAL: Only show premium UI after mount AND hydration complete
+  // This prevents free-tier UI from flashing
+  const showPremiumUI = mounted && isInitialized && isPremium;
   const showLifetimeUI = mounted && isInitialized && isLifetime;
 
   async function signOut() {

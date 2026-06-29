@@ -11,12 +11,22 @@ import { useSubscriptionStore } from "@/lib/stores/subscription-store";
 export function SubscriptionInitializer() {
   const loadSubscription = useSubscriptionStore(state => state.loadSubscription);
   const isInitialized = useSubscriptionStore(state => state.isInitialized);
+  const subscription = useSubscriptionStore(state => state.subscription);
+  const lastSyncedAt = useSubscriptionStore(state => state.lastSyncedAt);
 
   useEffect(() => {
-    // Load subscription once on mount if not already initialized
-    if (!isInitialized) {
-      loadSubscription();
+    // If we have hydrated subscription data that's recent, don't reload
+    if (isInitialized && subscription && lastSyncedAt) {
+      const age = Date.now() - (typeof lastSyncedAt === 'string' ? new Date(lastSyncedAt).getTime() : lastSyncedAt.getTime());
+      if (age < 60_000) { // Less than 1 minute old
+        console.log('[SubscriptionInitializer] Using hydrated subscription (age:', Math.round(age / 1000), 's)');
+        return;
+      }
     }
+    
+    // Otherwise load fresh subscription data
+    console.log('[SubscriptionInitializer] Loading subscription...');
+    loadSubscription();
   }, []); // Run only once on mount
 
   // Listen for auth state changes
